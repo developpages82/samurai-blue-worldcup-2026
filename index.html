@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>SAMURAI BLUE 26 — Explore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#000000;--sub:#999999;--accent:#000000;--accent2:#000000;--line:#cccccc;--gk:#000000;--df:#000000;--mf:#000000;--card:#ffffff;--fill:#001E55;--fillh:#123a86}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink);overflow:hidden;touch-action:none}
+.app{position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden}
+#splash{position:fixed;inset:0;z-index:1000;background:#001E55;display:flex;align-items:center;justify-content:center;transition:opacity .9s ease}
+#splash.hide{opacity:0;pointer-events:none}
+.splash-logo{width:min(54vw,460px);max-height:62vh;opacity:0;transform:scale(.92);animation:splashIn 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes splashIn{to{opacity:1;transform:scale(1)}}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:#ffffff}
+@keyframes bgshift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(3%,-2%) scale(1.06)}}
+.dots{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:radial-gradient(rgba(0,0,0,.05) 1.2px,transparent 1.3px);background-size:30px 30px;animation:dot 40s linear infinite}
+@keyframes dot{from{background-position:0 0}to{background-position:300px 300px}}
+.topbar{position:relative;z-index:20;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;border-bottom:none;background:rgba(255,255,255,.92);backdrop-filter:blur(8px)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;margin-right:6px}
+.brand .b{font-size:17px;letter-spacing:.01em;white-space:nowrap}
+.brand .logo{height:30px;width:auto;display:block}
+.tabs{display:flex;gap:4px}
+.tab{cursor:pointer;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:8px 14px;border-radius:3px;border:1px solid var(--ink);color:var(--ink);background:transparent;transition:.15s}
+.tab:hover{background:rgba(21,23,29,.06)}.tab.active{background:var(--fill);color:#fff}
+.spacer{flex:1 1 auto;min-width:4px}
+.ib{cursor:pointer;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:9px 14px;border-radius:3px;border:1px solid var(--ink);background:transparent;color:var(--ink);transition:.15s;white-space:nowrap}
+.ib:hover{background:var(--fill);color:#fff}
+.ib.solid{background:var(--fill);color:#fff}.ib.solid:hover{background:var(--fill);border-color:var(--accent)}
+.viewport{position:relative;z-index:2;flex:1 1 auto;overflow:hidden;cursor:grab;touch-action:none}
+.viewport.grabbing{cursor:grabbing}
+.world{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.item{position:absolute;will-change:transform;z-index:5}
+@keyframes cardIn{0%{transform:perspective(1000px) rotateY(-92deg) scale(.86);opacity:0}55%{opacity:1}100%{transform:perspective(1000px) rotateY(0deg) scale(1);opacity:1}}
+.card,.qcard,.lcard{animation:cardIn .6s cubic-bezier(.2,.75,.3,1) backwards}
+/* MARQUEE on world */
+.marq{position:absolute;left:0;white-space:nowrap;font-weight:900;pointer-events:none;overflow:visible}
+.marq .tk{display:inline-block;will-change:transform}
+.marq.l .tk{animation:scrollL linear infinite}.marq.r .tk{animation:scrollR linear infinite}
+@keyframes scrollL{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes scrollR{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.marq.stroke .tk{color:transparent;-webkit-text-stroke:1.5px rgba(0,30,85,.20)}
+.marq.solid.c-accent .tk{color:rgba(0,30,85,.30)}
+.marq.solid.c-sub .tk{color:rgba(0,30,85,.18)}
+.marq.solid.c-accent2 .tk{color:rgba(0,0,0,.42)}
+/* GIANT ghost word */
+.giant{position:absolute;font-weight:900;color:transparent;-webkit-text-stroke:1.5px rgba(21,23,29,.07);pointer-events:none;z-index:0;line-height:.8;letter-spacing:-.03em;animation:floaty 12s ease-in-out infinite alternate}
+@keyframes floaty{from{transform:translateY(0)}to{transform:translateY(-16px)}}
+/* HASHTAG */
+.htag{position:absolute;z-index:6;font-weight:700;font-size:15px;letter-spacing:.02em;color:var(--ink);background:#fff;border:1px solid var(--ink);padding:6px 12px;border-radius:3px;cursor:pointer;white-space:nowrap;transition:.15s;user-select:none}
+.htag:hover{background:var(--fill);color:#fff}
+.htag.f{border-color:var(--ink);color:var(--ink)}.htag.f:hover{background:var(--fill)}
+/* VIEW MORE link */
+.more{position:absolute;z-index:6;text-decoration:none;background:var(--fill);color:#fff;border-radius:3px;padding:13px 16px;min-width:150px;transition:.15s;user-select:none}
+.more:hover{background:var(--fillh)}
+.more .vm{font-size:10px;font-weight:800;letter-spacing:.22em;opacity:0;max-height:0;overflow:hidden;transition:opacity .2s ease,max-height .25s ease}
+.more:hover .vm{opacity:.85;max-height:20px}
+.more .lb{font-size:15px;font-weight:800;margin-top:3px;display:flex;align-items:center;gap:6px}
+.more .lb::after{content:"↗";font-size:13px}
+.card{position:relative;border-radius:0;overflow:hidden;background:var(--card);border:1px solid var(--line);cursor:pointer;transition:box-shadow .15s ease,transform .2s ease}
+.card:hover{box-shadow:0 0 0 2px var(--ink);transform:translateY(-6px) rotate(-3deg) scale(1.03)}
+.card.dim{opacity:.14;filter:grayscale(.5)}
+.photo{position:absolute;inset:0;background-size:cover;background-position:top center}
+.nofb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--fill)}
+.nofb span{font-weight:900;font-size:90px;color:rgba(255,255,255,.16)}
+.ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,18,0) 34%,rgba(10,12,18,.45) 58%,rgba(10,12,18,.94) 100%)}
+.cno{position:absolute;top:9px;left:11px;font-weight:900;font-size:36px;color:#fff;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.pbadge{position:absolute;top:13px;right:10px;font-weight:800;font-size:10.5px;letter-spacing:.04em;padding:3px 8px;border-radius:20px;color:#0a0f1c;background:var(--gk)}
+.pbadge.DF{background:var(--fill);color:#fff}.pbadge.MFFW{background:var(--fill);color:#fff}
+.note{position:absolute;top:44px;left:11px;font-size:9.5px;font-weight:700;background:var(--fill);color:#fff;padding:2px 6px;border-radius:5px}
+.cinfo{position:absolute;left:0;right:0;bottom:0;padding:10px 12px 12px;color:#fff}
+.cinfo .en{font-size:21px;font-weight:800;letter-spacing:.02em;line-height:1.08;color:#fff;text-transform:uppercase}
+.cinfo .jp{font-size:13px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.84);margin-top:4px}
+.cinfo .meta{display:flex;gap:8px;margin-top:6px;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.85)}
+.cinfo .meta b{color:#ffe08a;font-weight:800}
+.cmore{position:absolute;bottom:10px;right:11px;font-size:9px;font-weight:800;letter-spacing:.14em;color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:3px;padding:3px 8px;opacity:0;transition:opacity .2s ease}
+.card:hover .cmore{opacity:1}
+.qcard{position:relative;border-radius:0;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px 14px;border:1px solid var(--ink);transition:box-shadow .15s ease,transform .2s ease;background:var(--card);user-select:none}
+.qcard:hover{transform:translateY(-6px) rotate(2.5deg) scale(1.03);box-shadow:0 0 0 2px var(--ink)}
+.lcard{position:relative;display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;border-radius:0;background:#fff;color:var(--fill);border:1px solid var(--ink);padding:16px 15px 16px;transition:box-shadow .15s ease,transform .2s ease;user-select:none}
+.lcard:hover{transform:translateY(-6px) rotate(-2deg) scale(1.03);box-shadow:0 0 0 2px var(--ink)}
+.lcard .lk-top{font-size:10px;font-weight:800;letter-spacing:.2em}
+.lcard .lk-mid{font-size:21px;font-weight:800;line-height:1.22}
+.lcard .lk-arr{position:absolute;top:13px;right:14px;font-size:22px;font-weight:800}
+.qcard .qmark{font-weight:900;font-size:52px;line-height:.55;opacity:.4}
+.qcard .qtext{font-weight:900;letter-spacing:-.01em;line-height:1.34;flex:1;display:flex;align-items:center}
+.qcard .qfoot{display:flex;flex-direction:column;gap:3px}
+.qcard .qby{font-size:11px;font-weight:800;letter-spacing:.05em;opacity:.72}.qcard .qby::before{content:"— "}
+.qcard .qsrc{font-size:9px;font-weight:800;letter-spacing:.14em;text-decoration:none;opacity:0;max-height:0;overflow:hidden;transition:opacity .2s ease,max-height .25s ease}
+.qcard:hover .qsrc{opacity:.9;max-height:18px}
+.qcard .qsrc{color:#fff}
+.qcard.c-accent{background:var(--fill);color:#fff}
+.qcard.c-accent2{background:var(--fill);color:#fff}
+.qcard.c-ink{background:var(--fill);color:#fff}
+.qcard.c-sub{background:var(--fill);color:#fff}
+.hud{position:absolute;right:14px;bottom:14px;z-index:15;display:flex;flex-direction:column;gap:8px}
+.zbtn{width:44px;height:44px;border-radius:3px;border:1px solid var(--ink);background:#fff;color:var(--ink);font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.zbtn:hover{background:var(--fill);color:#fff}
+.hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:15;font-size:11.5px;font-weight:600;color:var(--sub);background:#fff;padding:6px 14px;border-radius:3px;border:1px solid var(--ink);white-space:nowrap;pointer-events:none;transition:opacity .5s}
+.hint b{color:var(--accent)}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(20,22,28,.55);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.open{display:flex}
+.sheet{position:relative;max-width:780px;width:100%;max-height:92vh;overflow:auto;background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);animation:pop .35s cubic-bezier(.22,.9,.3,1)}
+@keyframes pop{from{transform:translateY(20px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.close{position:absolute;top:13px;right:15px;z-index:5;cursor:pointer;width:38px;height:38px;border-radius:50%;border:none;background:rgba(20,22,28,.5);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
+.close:hover{background:var(--fill)}
+.stop{display:flex;flex-wrap:wrap}
+.sphoto{position:relative;flex:0 0 290px;max-width:290px;aspect-ratio:3/4;background-size:cover;background-position:top center;background-color:var(--fill)}
+.sphoto .pno{position:absolute;top:14px;left:16px;font-weight:900;font-size:44px;color:#fff;text-shadow:0 2px 12px #000}
+.shead{flex:1;min-width:240px;padding:28px 26px 12px}
+.shead .pos{display:inline-block;font-weight:700;font-size:11px;letter-spacing:.04em;padding:5px 12px;border-radius:3px;color:#fff;background:var(--fill)}
+.pos.DF{background:var(--fill);color:#fff}.pos.MFFW{background:var(--fill);color:#fff}
+.shead .jp{font-size:34px;font-weight:900;margin-top:11px;line-height:1.05}
+.shead .en{font-size:13px;font-weight:600;letter-spacing:.16em;color:var(--sub);margin-top:5px}
+.shead .club{font-size:14px;font-weight:600;margin-top:13px;color:#2a2d36}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 26px}
+.kpi{background:#f5f5f5;border-radius:3px;padding:12px;text-align:center}
+.kpi .v{font-weight:900;font-size:26px;color:var(--accent)}.kpi .k{font-size:9.5px;font-weight:700;letter-spacing:.16em;color:var(--sub);margin-top:3px}
+.bio{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:#2a2d36;padding:13px 26px 6px;font-weight:500}
+.bio b{color:var(--accent);font-weight:800}
+.det{padding:8px 26px 4px}.det .blk{margin-bottom:14px}
+.det h4{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--accent);margin-bottom:5px}
+.det p{font-size:15px;line-height:1.78;color:#23262e}
+.tags{display:flex;flex-wrap:wrap;gap:7px;padding:4px 26px 6px}
+.tags span{font-size:11px;font-weight:700;color:var(--ink);background:rgba(0,0,0,.06);padding:4px 10px;border-radius:3px}
+.acts{display:flex;gap:11px;flex-wrap:wrap;padding:10px 26px 26px}
+.acts a{flex:1;min-width:170px;text-align:center;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.03em;padding:14px;border-radius:3px;transition:.15s}
+.a-yt{background:var(--fill);color:#fff}.a-yt:hover{background:var(--fillh)}
+.a-jfa{background:#fff;border:1.5px solid var(--ink);color:var(--ink)}.a-jfa:hover{background:var(--fill);color:#fff}
+.tsheet{max-width:960px;width:100%;max-height:90vh;background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.tsheet .th{padding:13px 18px;font-weight:900;font-size:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.thctl{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--sub)}
+.thctl select{padding:7px 10px;border-radius:3px;border:1px solid var(--ink);font-family:inherit;font-weight:600;font-size:13px;outline:none}
+.tdir{cursor:pointer;border:1px solid var(--ink);background:#fff;border-radius:3px;padding:7px 12px;font-weight:700;font-size:12px}
+.tdir:hover{background:var(--fill);color:#fff}
+.tscroll{overflow-y:auto;overflow-x:hidden}
+.ptable{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px}
+.ptable thead th{position:sticky;top:0;background:var(--fill);color:#fff;font-weight:700;padding:10px 8px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap}
+.ptable thead th:hover{color:var(--gk)}.arr{font-size:9px;opacity:.7;margin-left:2px}
+.ptable td{padding:9px 8px;border-bottom:1px solid #efece4;color:#2a2d36;white-space:normal;word-break:break-word;vertical-align:top}
+.ptable tbody tr{cursor:pointer}.ptable tbody tr:hover{background:#f3f1ea}
+.ptable td.n{text-align:right;font-variant-numeric:tabular-nums}.ptable .nm{font-weight:800;color:var(--ink)}
+.pchip{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;color:#fff;background:var(--fill);white-space:nowrap}
+.pchip.DF{background:var(--fill);color:#fff}.pchip.MFFW{background:var(--fill);color:#fff}
+.plist{display:none;padding:10px}
+.pitem{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--ink);border-radius:3px;margin-bottom:9px;cursor:pointer}
+.pitem:active,.pitem:hover{background:#f3f1ea}
+.pitem .pno{font-weight:900;font-size:22px;width:32px;text-align:center;color:var(--accent);flex:0 0 auto}
+.pitem .pmain{flex:1;min-width:0}
+.pitem .pnm{font-weight:800;font-size:16px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.pitem .pen{font-size:10px;color:var(--sub);letter-spacing:.1em;margin-top:1px}
+.pitem .pmeta{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:6px;font-size:11.5px;color:#46506a;font-weight:600}
+.pitem .pmeta b{color:var(--accent)}
+@media(max-width:680px){.ptable{display:none}.plist{display:block}}
+.ltabs{display:flex;gap:6px;flex-wrap:wrap}
+.ltab{cursor:pointer;font-weight:700;font-size:13px;letter-spacing:.02em;padding:7px 13px;border-radius:3px;border:1px solid var(--ink);background:#fff;color:var(--ink)}
+.ltab.active{background:var(--fill);color:#fff;border-color:var(--fill)}
+.sortwrap{display:flex;align-items:center;gap:6px}
+.slist{padding:8px 2px}
+.srow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:13px 14px;border:1px solid var(--line);border-radius:3px;margin-bottom:8px}
+.srow .srole{font-size:11px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--fill);padding:4px 10px;border-radius:3px;min-width:92px;text-align:center}
+.srow .snm{font-size:17px;font-weight:800;color:var(--ink)}
+.srow .sen{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--sub)}
+.info-body{padding:24px 28px 30px;font-size:14px;line-height:1.9;color:#2a2d36}
+.info-body a{color:var(--accent)}.info-body h3{font-size:19px;margin-bottom:10px}
+@media(max-width:560px){.sphoto{flex-basis:100%;max-width:100%}.quote.sz-xl .qt{font-size:34px}.quote.sz-l .qt{font-size:26px}}
+</style>
+</head>
+<body>
+<div id="splash"><img class="splash-logo" src="top-logo.svg" alt="SAMURAI BLUE"></div>
+<div class="bg"></div><div class="dots"></div>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><img class="logo" src="JFA_icon.webp" alt="JFA"><span class="b">SAMURAI BLUE FIFA World Cup 2026</span></div>
+    <div class="spacer"></div>
+    <div class="tabs" id="modes">
+      <button class="tab active" data-mode="ALL">ALL</button>
+      <button class="tab" data-mode="MEMBERS">MEMBERS</button>
+      <button class="tab" data-mode="WORDS">WORDS</button>
+      <button class="tab" data-mode="LINK">LINK</button>
+    </div>
+    <button class="ib" id="openTable">一覧</button>
+    <button class="ib" id="openInfo">ⓘ</button>
+  </div>
+  <div class="viewport" id="viewport">
+    <div class="world" id="world"></div>
+    <div class="hint" id="hint">ドラッグで移動 ・ ホイール / ピンチで拡大縮小 ・ カードや # をタップ</div>
+    <div class="hud">
+      <button class="zbtn" id="zin">＋</button>
+      <button class="zbtn" id="zout">－</button>
+      <button class="zbtn" id="zfit" title="全体表示">⤢</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="modal" id="tableModal"><div class="tsheet">
+  <div class="th">
+    <div class="ltabs" id="ltabs">
+      <button class="ltab" data-list="boss">監督</button>
+      <button class="ltab active" data-list="players">選手一覧</button>
+      <button class="ltab" data-list="staff">スタッフ一覧</button>
+    </div>
+    <div class="thctl"><span class="sortwrap" id="sortwrap">並び替え
+      <select id="tsort"><option value="no">背番号</option><option value="pos">ポジション</option><option value="age">年齢</option><option value="h">身長</option><option value="w">体重</option><option value="caps">出場</option><option value="goals">得点</option><option value="jp">名前</option></select>
+      <button class="tdir" id="tdir">昇順</button></span>
+      <button class="close" style="position:static" onclick="closeT()">✕</button>
+    </div>
+  </div>
+  <div class="tscroll">
+    <div id="listPlayers"><table class="ptable"><thead id="thead"></thead><tbody id="tbody"></tbody></table><div class="plist" id="plist"></div></div>
+    <div id="listBoss" style="display:none"></div>
+    <div id="listStaff" style="display:none"></div>
+  </div></div></div>
+<div class="modal" id="infoModal"><div class="sheet" style="max-width:580px">
+  <button class="close" onclick="closeI()">✕</button>
+  <div class="info-body"><h3>SAMURAI BLUE 26 — FIFA World Cup 2026</h3>
+    <p>ドラッグでキャンバスを動かし、ホイール/ピンチでカメラを拡大縮小。カードをタップで選手詳細、# やVIEW MOREで関連ページへ。</p>
+    <p style="margin-top:12px">言葉は監督・選手のインタビュー等からの抜粋です。出典: <a href="https://www.jfa.jp/samuraiblue/worldcup_2026/canadamexicousa2026/squad/" target="_blank">JFA公式</a> / Number / ゲキサカ / サッカーキング / Wikipedia / スポーツナビ　取得日 2026-06-18</p>
+    <p style="margin-top:8px">出場数・得点は招集発表時点の参考値。データは <b>samurai_blue_2026_members.xlsx</b> で管理しています。</p>
+    <p style="margin-top:8px;color:#9094a0;font-size:12px">© Japan Football Association. データ・写真・言葉の権利は各権利者に帰属します。</p></div></div></div>
+<script>
+const PLAYERS=[{"no": 1, "pos": "GK", "jp": "鈴木 彩艶", "en": "SUZUKI Zion", "club": "パルマ・カルチョ", "country": "イタリア", "dob": "2002-08-21", "bp": "アメリカ(NY)", "h": 190, "w": 86, "caps": 24, "goals": 0, "feat": "長身を生かした圧倒的なリーチと足元の技術を備えた現代型GK。ビルドアップの起点になれる。", "pers": "若くして欧州主要リーグで正GKを掴んだ大胆さと冷静さ。物怖じしない芯の強さ。", "yt": "https://www.youtube.com/results?search_query=%E9%88%B4%E6%9C%A8%20%E5%BD%A9%E8%89%B6%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/SUZUKI%20Zion.webp", "prof": "https://www.jfa.jp/samuraiblue/member/suzuki_zion.html", "note": ""}, {"no": 12, "pos": "GK", "jp": "大迫 敬介", "en": "OSAKO Keisuke", "club": "サンフレッチェ広島", "country": "日本", "dob": "1999-07-28", "bp": "鹿児島県出水市", "h": 190, "w": 88, "caps": 11, "goals": 0, "feat": "好反応のシュートストップと的確なコーチング。Jリーグで安定感を示す守護神。", "pers": "冷静で堅実。地道に実力を積み上げる職人肌。", "yt": "https://www.youtube.com/results?search_query=%E5%A4%A7%E8%BF%AB%20%E6%95%AC%E4%BB%8B%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/OSAKO%20Keisuke.webp", "prof": "https://www.jfa.jp/samuraiblue/member/osako_keisuke.html", "note": ""}, {"no": 23, "pos": "GK", "jp": "早川 友基", "en": "HAYAKAWA Tomoki", "club": "鹿島アントラーズ", "country": "日本", "dob": "1999-03-03", "bp": "神奈川県相模原市", "h": 187, "w": 81, "caps": 4, "goals": 0, "feat": "安定したシュートストップと足元の技術。鹿島の正GKとして台頭。", "pers": "堅実で謙虚。着実にステップアップを重ねる努力家。", "yt": "https://www.youtube.com/results?search_query=%E6%97%A9%E5%B7%9D%20%E5%8F%8B%E5%9F%BA%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/HAYAKAWA%20Tomoki.webp", "prof": "https://www.jfa.jp/samuraiblue/member/hayakawa_tomoki.html", "note": ""}, {"no": 2, "pos": "DF", "jp": "菅原 由勢", "en": "SUGAWARA Yukinari", "club": "ヴェルダー・ブレーメン", "country": "ドイツ", "dob": "2000-06-28", "bp": "愛知県豊川市", "h": 179, "w": 71, "caps": 21, "goals": 2, "feat": "攻撃的な右SB。鋭いオーバーラップと正確なクロス、対人守備も安定。", "pers": "明るいムードメーカー。自ら海外移籍を切り拓く行動力。", "yt": "https://www.youtube.com/results?search_query=%E8%8F%85%E5%8E%9F%20%E7%94%B1%E5%8B%A2%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/SUGAWARA%20Yukinari.webp", "prof": "https://www.jfa.jp/samuraiblue/member/sugawara_yukinari.html", "note": ""}, {"no": 3, "pos": "DF", "jp": "谷口 彰悟", "en": "TANIGUCHI Shogo", "club": "シントトロイデンVV", "country": "ベルギー", "dob": "1991-07-15", "bp": "熊本県熊本市", "h": 185, "w": 75, "caps": 38, "goals": 1, "feat": "高精度のフィードと統率力を備えた知性派CB。空中戦に強い。", "pers": "冷静沈着なリーダー。筑波大卒の論理的思考派。", "yt": "https://www.youtube.com/results?search_query=%E8%B0%B7%E5%8F%A3%20%E5%BD%B0%E6%82%9F%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/TANIGUCHI%20Shogo.webp", "prof": "https://www.jfa.jp/samuraiblue/member/taniguchi_shogo.html", "note": ""}, {"no": 4, "pos": "DF", "jp": "板倉 滉", "en": "ITAKURA Ko", "club": "アヤックス", "country": "オランダ", "dob": "1997-01-27", "bp": "神奈川県横浜市", "h": 188, "w": 80, "caps": 40, "goals": 2, "feat": "対人とカバーリングに長け、元ボランチで足元も巧い。守備の柱。", "pers": "堅実で責任感が強い守備の要。", "yt": "https://www.youtube.com/results?search_query=%E6%9D%BF%E5%80%89%20%E6%BB%89%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/ITAKURA%20Ko.webp", "prof": "https://www.jfa.jp/samuraiblue/member/itakura_kou.html", "note": ""}, {"no": 16, "pos": "DF", "jp": "渡辺 剛", "en": "WATANABE Tsuyoshi", "club": "フェイエノールト", "country": "オランダ", "dob": "1997-02-05", "bp": "埼玉県", "h": 184, "w": 76, "caps": 11, "goals": 0, "feat": "対人の強さと高さ、安定したビルドアップが武器のCB。", "pers": "真面目で勤勉。着実に成長を遂げた苦労人。", "yt": "https://www.youtube.com/results?search_query=%E6%B8%A1%E8%BE%BA%20%E5%89%9B%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/WATANABE%20Tsuyoshi.webp", "prof": "https://www.jfa.jp/samuraiblue/member/watanabe_tsuyoshi.html", "note": ""}, {"no": 22, "pos": "DF", "jp": "冨安 健洋", "en": "TOMIYASU Takehiro", "club": "アヤックス", "country": "オランダ", "dob": "1998-11-05", "bp": "福岡県福岡市", "h": 187, "w": 84, "caps": 43, "goals": 1, "feat": "CB・SBをこなすユーティリティ性と高い対人能力を誇る。", "pers": "知的で冷静。戦術理解度が高い努力家。", "yt": "https://www.youtube.com/results?search_query=%E5%86%A8%E5%AE%89%20%E5%81%A5%E6%B4%8B%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/TOMIYASU%20Takehiro.webp", "prof": "https://www.jfa.jp/samuraiblue/member/tomiyasu_takehiro.html", "note": ""}, {"no": 21, "pos": "DF", "jp": "伊藤 洋輝", "en": "ITO Hiroki", "club": "バイエルン・ミュンヘン", "country": "ドイツ", "dob": "1999-05-12", "bp": "静岡県浜松市", "h": 188, "w": 84, "caps": 24, "goals": 1, "feat": "長身ながら左足の技術が高く、正確なロングフィードが武器。", "pers": "おおらかで堂々とした佇まい。欧州強豪でも動じない。", "yt": "https://www.youtube.com/results?search_query=%E4%BC%8A%E8%97%A4%20%E6%B4%8B%E8%BC%9D%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/ITO%20Hiroki.webp", "prof": "https://www.jfa.jp/samuraiblue/member/ito_hiroki.html", "note": ""}, {"no": 20, "pos": "DF", "jp": "瀬古 歩夢", "en": "SEKO Ayumu", "club": "ル・アーヴルAC", "country": "フランス", "dob": "2000-06-07", "bp": "大阪府", "h": 186, "w": 81, "caps": 14, "goals": 0, "feat": "落ち着いた対応とビルドアップ。フランスで急成長したCB。", "pers": "冷静で向上心が高い。海外で自らを鍛える挑戦者。", "yt": "https://www.youtube.com/results?search_query=%E7%80%AC%E5%8F%A4%20%E6%AD%A9%E5%A4%A2%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/SEKO%20Ayumu.webp", "prof": "https://www.jfa.jp/samuraiblue/member/seko_ayumu.html", "note": ""}, {"no": 5, "pos": "DF", "jp": "長友 佑都", "en": "NAGATOMO Yuto", "club": "FC東京", "country": "日本", "dob": "1986-09-12", "bp": "愛媛県西条市", "h": 170, "w": 68, "caps": 145, "goals": 4, "feat": "驚異的なスタミナとスピードで上下動を続ける鉄人SB。5大会連続W杯。", "pers": "陽気で情熱的。チームを鼓舞する精神的支柱。", "yt": "https://www.youtube.com/results?search_query=%E9%95%B7%E5%8F%8B%20%E4%BD%91%E9%83%BD%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/NAGATOMO%20Yuto.webp", "prof": "https://www.jfa.jp/samuraiblue/member/nagatomo_yuto.html", "note": ""}, {"no": 25, "pos": "DF", "jp": "鈴木 淳之介", "en": "SUZUKI Junnosuke", "club": "FCコペンハーゲン", "country": "デンマーク", "dob": "2003-07-12", "bp": "岐阜県各務原市", "h": 180, "w": 78, "caps": 6, "goals": 0, "feat": "左利きでビルドアップに優れる若手CB。冷静な配球。", "pers": "向上心旺盛で大胆に海外挑戦する度胸の持ち主。", "yt": "https://www.youtube.com/results?search_query=%E9%88%B4%E6%9C%A8%20%E6%B7%B3%E4%B9%8B%E4%BB%8B%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/SUZUKI%20Junnosuke.webp", "prof": "https://www.jfa.jp/samuraiblue/member/suzuki_junnosuke.html", "note": ""}, {"no": 14, "pos": "MF/FW", "jp": "伊東 純也", "en": "ITO Junya", "club": "KRCゲンク", "country": "ベルギー", "dob": "1993-03-09", "bp": "神奈川県横須賀市", "h": 176, "w": 68, "caps": 69, "goals": 15, "feat": "圧倒的なスピードと縦突破、正確なクロス。右の超特急。", "pers": "寡黙で実直。ストイックに自己研鑽を積む。", "yt": "https://www.youtube.com/results?search_query=%E4%BC%8A%E6%9D%B1%20%E7%B4%94%E4%B9%9F%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/ITO%20Junya.webp", "prof": "https://www.jfa.jp/samuraiblue/member/ito_junya.html", "note": ""}, {"no": 15, "pos": "MF/FW", "jp": "鎌田 大地", "en": "KAMADA Daichi", "club": "クリスタル・パレス", "country": "イングランド", "dob": "1996-08-05", "bp": "愛媛県伊予市", "h": 180, "w": 72, "caps": 49, "goals": 12, "feat": "高いキープ力と決定的パス、ゲームメイク能力。", "pers": "自然体でクール。自分の哲学を持つ。", "yt": "https://www.youtube.com/results?search_query=%E9%8E%8C%E7%94%B0%20%E5%A4%A7%E5%9C%B0%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/KAMADA%20Daichi.webp", "prof": "https://www.jfa.jp/samuraiblue/member/kamada_daichi.html", "note": ""}, {"no": 19, "pos": "MF/FW", "jp": "小川 航基", "en": "OGAWA Koki", "club": "NECナイメヘン", "country": "オランダ", "dob": "1997-08-08", "bp": "神奈川県横浜市", "h": 186, "w": 78, "caps": 15, "goals": 11, "feat": "高さと精度の高いヘディング、ボックス内の決定力。", "pers": "遅咲きを努力で開花させた粘り強さ。", "yt": "https://www.youtube.com/results?search_query=%E5%B0%8F%E5%B7%9D%20%E8%88%AA%E5%9F%BA%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/OGAWA%20Koki.webp", "prof": "https://www.jfa.jp/samuraiblue/member/ogawa_koki.html", "note": ""}, {"no": 11, "pos": "MF/FW", "jp": "前田 大然", "en": "MAEDA Daizen", "club": "セルティック", "country": "スコットランド", "dob": "1997-10-20", "bp": "大阪府太子町", "h": 173, "w": 67, "caps": 27, "goals": 4, "feat": "陸上選手級のスプリントと運動量。前線守備の起点。", "pers": "ひたむきで献身的。明るいキャラクター。", "yt": "https://www.youtube.com/results?search_query=%E5%89%8D%E7%94%B0%20%E5%A4%A7%E7%84%B6%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/MAEDA%20Daizen.webp", "prof": "https://www.jfa.jp/samuraiblue/member/maeda_daizen.html", "note": ""}, {"no": 10, "pos": "MF/FW", "jp": "堂安 律", "en": "DOAN Ritsu", "club": "アイントラハト・フランクフルト", "country": "ドイツ", "dob": "1998-06-16", "bp": "兵庫県尼崎市", "h": 172, "w": 70, "caps": 65, "goals": 11, "feat": "右サイドからの強烈な左足カットインとシュート。勝負強さ。", "pers": "口にした目標を実現する強気と負けん気。", "yt": "https://www.youtube.com/results?search_query=%E5%A0%82%E5%AE%89%20%E5%BE%8B%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/DOAN%20Ritsu.webp", "prof": "https://www.jfa.jp/samuraiblue/member/doan_ritsu.html", "note": ""}, {"no": 18, "pos": "MF/FW", "jp": "上田 綺世", "en": "UEDA Ayase", "club": "フェイエノールト", "country": "オランダ", "dob": "1998-08-28", "bp": "茨城県水戸市", "h": 182, "w": 76, "caps": 39, "goals": 16, "feat": "多彩なフィニッシュとオフザボールの動き。エールディヴィジ得点王。", "pers": "研究熱心で向上心の高いストイックな点取り屋。", "yt": "https://www.youtube.com/results?search_query=%E4%B8%8A%E7%94%B0%20%E7%B6%BA%E4%B8%96%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/UEDA%20Ayase.webp", "prof": "https://www.jfa.jp/samuraiblue/member/ueda_ayase.html", "note": ""}, {"no": 7, "pos": "MF/FW", "jp": "田中 碧", "en": "TANAKA Ao", "club": "リーズ・ユナイテッド", "country": "イングランド", "dob": "1998-09-10", "bp": "神奈川県川崎市", "h": 180, "w": 75, "caps": 38, "goals": 8, "feat": "展開力と球際の強さを兼備するボックス・トゥ・ボックス。", "pers": "負けず嫌いで自己主張も明確なリーダー気質。", "yt": "https://www.youtube.com/results?search_query=%E7%94%B0%E4%B8%AD%20%E7%A2%A7%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/TANAKA%20Ao.webp", "prof": "https://www.jfa.jp/samuraiblue/member/tanaka_ao.html", "note": ""}, {"no": 6, "pos": "MF/FW", "jp": "町野 修斗", "en": "MACHINO Shuto", "club": "ボルシア・メンヘングラートバッハ", "country": "ドイツ", "dob": "1999-09-30", "bp": "三重県", "h": 185, "w": 81, "caps": 14, "goals": 5, "feat": "高さと強さを備えたターゲット型FW。ポストプレーと得点力。", "pers": "遅咲きを努力で乗り越えたハングリー精神。", "yt": "https://www.youtube.com/results?search_query=%E7%94%BA%E9%87%8E%20%E4%BF%AE%E6%96%97%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/MACHINO%20Shuto.webp", "prof": "https://www.jfa.jp/samuraiblue/member/machino_shuto.html", "note": "6/12追加招集"}, {"no": 13, "pos": "MF/FW", "jp": "中村 敬斗", "en": "NAKAMURA Keito", "club": "スタッド・ランス", "country": "フランス", "dob": "2000-07-28", "bp": "千葉県我孫子市", "h": 181, "w": 75, "caps": 25, "goals": 10, "feat": "左サイドの仕掛けと高い決定力を持つアタッカー。", "pers": "マイペースで飄々。勝負どころで力を発揮する。", "yt": "https://www.youtube.com/results?search_query=%E4%B8%AD%E6%9D%91%20%E6%95%AC%E6%96%97%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/NAKAMURA%20Keito.webp", "prof": "https://www.jfa.jp/samuraiblue/member/nakamura_keito.html", "note": ""}, {"no": 24, "pos": "MF/FW", "jp": "佐野 海舟", "en": "SANO Kaishu", "club": "マインツ05", "country": "ドイツ", "dob": "2000-12-30", "bp": "岡山県津山市", "h": 176, "w": 67, "caps": 13, "goals": 0, "feat": "驚異的な運動量とボール奪取力を誇るデュエル王。", "pers": "負けん気が強く泥臭く戦う、闘志あふれるタイプ。", "yt": "https://www.youtube.com/results?search_query=%E4%BD%90%E9%87%8E%20%E6%B5%B7%E8%88%9F%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/SANO%20Kaishu.webp", "prof": "https://www.jfa.jp/samuraiblue/member/sano_kaishu.html", "note": ""}, {"no": 8, "pos": "MF/FW", "jp": "久保 建英", "en": "KUBO Takefusa", "club": "レアル・ソシエダード", "country": "スペイン", "dob": "2001-06-04", "bp": "神奈川県川崎市", "h": 173, "w": 67, "caps": 49, "goals": 7, "feat": "左足の精密なドリブルと創造性。狭い局面を打開する天才肌。", "pers": "幼少期から世界を見据える向上心と勝負師気質。", "yt": "https://www.youtube.com/results?search_query=%E4%B9%85%E4%BF%9D%20%E5%BB%BA%E8%8B%B1%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/KUBO%20Takefusa.webp", "prof": "https://www.jfa.jp/samuraiblue/member/kubo_takefusa.html", "note": ""}, {"no": 17, "pos": "MF/FW", "jp": "鈴木 唯人", "en": "SUZUKI Yuito", "club": "SCフライブルク", "country": "ドイツ", "dob": "2001-10-25", "bp": "神奈川県葉山町", "h": 175, "w": 71, "caps": 6, "goals": 0, "feat": "独特のリズムのドリブルと創造性。一人で局面を変える。", "pers": "飄々とした個性派。自分の感性を大事にする。", "yt": "https://www.youtube.com/results?search_query=%E9%88%B4%E6%9C%A8%20%E5%94%AF%E4%BA%BA%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/SUZUKI%20Yuito.webp", "prof": "https://www.jfa.jp/samuraiblue/member/suzuki_yuito.html", "note": ""}, {"no": 26, "pos": "MF/FW", "jp": "塩貝 健人", "en": "SHIOGAI Kento", "club": "VfLヴォルフスブルク", "country": "ドイツ", "dob": "2005-03-26", "bp": "東京都", "h": 180, "w": 77, "caps": 2, "goals": 0, "feat": "大学経由の異色ストライカー。裏抜けと決定力が持ち味。", "pers": "知性的で自立心が強い。努力で道を切り拓く。", "yt": "https://www.youtube.com/results?search_query=%E5%A1%A9%E8%B2%9D%20%E5%81%A5%E4%BA%BA%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/SHIOGAI%20Kento.webp", "prof": "https://www.jfa.jp/samuraiblue/member/shiogai_kento.html", "note": ""}, {"no": 9, "pos": "MF/FW", "jp": "後藤 啓介", "en": "GOTO Keisuke", "club": "SCフライブルク", "country": "ドイツ", "dob": "2005-06-03", "bp": "静岡県浜松市", "h": 191, "w": 78, "caps": 4, "goals": 0, "feat": "191cmの長身を生かす空中戦とフィジカル。将来を嘱望される大型FW。", "pers": "物静かだが芯は熱い、伸び盛りの努力家。", "yt": "https://www.youtube.com/results?search_query=%E5%BE%8C%E8%97%A4%20%E5%95%93%E4%BB%8B%20%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%20%E6%97%A5%E6%9C%AC%E4%BB%A3%E8%A1%A8", "photo": "menbers-photo/GOTO%20Keisuke.webp", "prof": "https://www.jfa.jp/samuraiblue/member/goto_keisuke.html", "note": ""}], QUOTES=[{"t": "謙虚に、ひたむきに、たくましく", "by": "森保 一 監督", "c": "ink", "src": "https://sportiva.shueisha.co.jp/clm/football/jfootball/2025/02/24/post_16/", "srcname": "Sportiva"}, {"t": "選手の“心”を預かる仕事だと思っています", "by": "森保 一 監督", "c": "sub", "src": "https://sportiva.shueisha.co.jp/clm/football/jfootball/2025/02/24/post_16/", "srcname": "Sportiva"}, {"t": "日本代表の勝利と、日本サッカーの発展のために", "by": "森保 一 監督", "c": "ink", "src": "https://sportiva.shueisha.co.jp/clm/football/jfootball/2025/02/24/post_16/", "srcname": "Sportiva"}, {"t": "新しい景色を、見に行く。", "by": "SAMURAI BLUE", "c": "accent", "src": "https://www.jfa.jp/samuraiblue/worldcup_2026/canadamexicousa2026/squad/", "srcname": "JFA"}, {"t": "これから5大会に出る", "by": "鈴木 彩艶", "c": "accent", "src": "https://topics.smt.docomo.ne.jp/article/nikkangendai/sports/nikkangendai-1222162", "srcname": "日刊ゲンダイ"}, {"t": "僕は、仕掛けるタイプ", "by": "大迫 敬介", "c": "ink", "src": "https://web.gekisaka.jp/news/detail/?311569-311569-fl=", "srcname": "ゲキサカ"}, {"t": "ミスをしても、すぐに取り返す", "by": "早川 友基", "c": "sub", "src": "https://sakanowa.jp/topics/105981", "srcname": "サカノワ"}, {"t": "優勝以外は、考えていない", "by": "菅原 由勢", "c": "accent2", "src": "https://www.goal.com/jp/%E3%83%AA%E3%82%B9%E3%83%88/2026-0613-sugawara-yukinari-adidas-goal-jp/bltdaaaa8564a7e5b6c", "srcname": "Goal"}, {"t": "身体を張って、ゴールを守り切る", "by": "谷口 彰悟", "c": "sub", "src": "https://www.jfa.jp/samuraiblue/member/taniguchi_shogo.html", "srcname": "JFA"}, {"t": "一秒たりとも、気を抜かない", "by": "板倉 滉", "c": "ink", "src": "https://soccermagazine.jp/national_A/17755624", "srcname": "サッカーマガジン"}, {"t": "ワタルくんのぶんも、前へ進む", "by": "渡辺 剛", "c": "sub", "src": "https://topics.smt.docomo.ne.jp/article/nikkansports/sports/f-sc-tp0-260612-202606120000217", "srcname": "日刊スポーツ"}, {"t": "僕の仕事は、しっかり守ること", "by": "冨安 健洋", "c": "ink", "src": "https://www.soccer-king.jp/news/world/eng/20221119/1710323.html", "srcname": "サッカーキング"}, {"t": "圧倒して、勝つ", "by": "伊藤 洋輝", "c": "accent", "src": "https://www.goal.com/jp/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9/20250317-japan-hiroki-ito/bltc8f2ddeb46ae5aee", "srcname": "Goal"}, {"t": "骨がパカパカ言っても、走り続ける", "by": "瀬古 歩夢", "c": "ink", "src": "https://www.footballista.jp/special/217681", "srcname": "footballista"}, {"t": "出られるなら、どこでもいい", "by": "鈴木 淳之介", "c": "sub", "src": "https://www.soccerdigestweb.com/news/detail/id=182440", "srcname": "サッカーダイジェスト"}, {"t": "意志あるところに、道あり", "by": "長友 佑都", "c": "ink", "src": "https://number.bunshun.jp/list/meigen/kw/%E9%95%B7%E5%8F%8B%E4%BD%91%E9%83%BD", "srcname": "Number"}, {"t": "苦しい時こそ、頑張る", "by": "伊東 純也", "c": "accent", "src": "https://kando.meigensyu.org/meigen/itojunya.html", "srcname": "名言集"}, {"t": "怖がらず、思い切ってやる", "by": "鎌田 大地", "c": "ink", "src": "https://topics.smt.docomo.ne.jp/article/friday/sports/friday-470794", "srcname": "FRIDAY"}, {"t": "点を取ることに関しては、僕が一番", "by": "小川 航基", "c": "accent", "src": "https://www.soccer-king.jp/news/japan/national/20260601/2165790.html", "srcname": "サッカーキング"}, {"t": "走れなくなったら、サッカーを辞める", "by": "前田 大然", "c": "accent2", "src": "https://times.abema.tv/fifaworldcup/articles/-/10039804", "srcname": "ABEMA"}, {"t": "自分が一番うまいと思って、ピッチに立つ", "by": "堂安 律", "c": "accent", "src": "https://anchor.id/column/n11968", "srcname": "Anchor"}, {"t": "勝負は、一瞬。", "by": "上田 綺世", "c": "accent", "src": "https://real-sports.jp/page/articles/725602914885698716/", "srcname": "REAL SPORTS"}, {"t": "言葉ではなく、プレーで示す", "by": "田中 碧", "c": "ink", "src": "https://goetheweb.jp/person/article/20230313-ao-tanaka", "srcname": "GOETHE"}, {"t": "這い上がってやる", "by": "町野 修斗", "c": "accent2", "src": "https://sportiva.shueisha.co.jp/clm/football/jfootball/2023/04/01/j3j1/", "srcname": "Sportiva"}, {"t": "誰かに言われてやっても、成長しない", "by": "中村 敬斗", "c": "ink", "src": "https://www.sakaiku.jp/column/interview/2025/017218.html", "srcname": "サカイク"}, {"t": "奪った後に、もっと早く仕掛ける", "by": "佐野 海舟", "c": "ink", "src": "https://www.soccer-king.jp/news/japan/national/20250910/2061603.html", "srcname": "サッカーキング"}, {"t": "優勝して、トロフィーを持って帰りたい", "by": "久保 建英", "c": "accent", "src": "https://web.gekisaka.jp/news/japan/detail/?453213-453213-fl=", "srcname": "ゲキサカ"}, {"t": "律くんのように、成長したい", "by": "鈴木 唯人", "c": "sub", "src": "https://www.goal.com/jp/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9/bundesliga-freiburg-yuito-suzuki-20250728/blt97f0e28411c91600", "srcname": "Goal"}, {"t": "僕以外、できない", "by": "塩貝 健人", "c": "accent2", "src": "https://www.football-zone.net/archives/633705", "srcname": "FOOTBALL ZONE"}, {"t": "目をつぶっていても、ゴールを決める", "by": "後藤 啓介", "c": "accent", "src": "https://news.yahoo.co.jp/articles/364e68c42dbb1128709a2957b0e70aade9cc4478", "srcname": "SOCCER DIGEST"}], LINKS=[{"t": "SQUAD 招集選手", "u": "https://www.jfa.jp/samuraiblue/worldcup_2026/canadamexicousa2026/squad/"}, {"t": "TICKETS チケット", "u": "https://www.jfa.jp/samuraiblue/worldcup_2026/canadamexicousa2026/tickets/"}, {"t": "GROUP 対戦国情報", "u": "https://www.jfa.jp/samuraiblue/worldcup_2026/canadamexicousa2026/opponent/"}, {"t": "JFA TV ▶ 動画", "u": "https://youtube.com/jfa"}, {"t": "特設サイト TOP", "u": "https://www.jfa.jp/samuraiblue/worldcup_2026/canadamexicousa2026/"}, {"t": "48 TEAMS 出場国", "u": "https://www.jfa.jp/samuraiblue/worldcup_2026/canadamexicousa2026/teams/"}], HASHTAGS=[{"t": "#WC2026", "f": ""}, {"t": "#SAMURAIBLUE", "f": ""}, {"t": "#日本代表", "f": ""}, {"t": "#新しい景色", "f": ""}, {"t": "#VAMOS_JAPAN", "f": ""}, {"t": "#森保JAPAN", "f": ""}, {"t": "#26人の戦士", "f": ""}, {"t": "#GroupStage", "f": ""}, {"t": "#青の誇り", "f": ""}, {"t": "#世界へ", "f": ""}, {"t": "#GK", "f": "GK"}, {"t": "#DF", "f": "DF"}, {"t": "#MF_FW", "f": "MF/FW"}], GIANTS=["JAPAN", "2026", "BLUE", "NIPPON", "VAMOS", "WC26"], MARQS=[{"t": "SAMURAI BLUE ★ FIFA WORLD CUP 2026 ・ CANADA · MEXICO · USA ★ ", "dur": 69.0, "dir": "l", "st": "stroke", "sz": 92, "y": 0.05}, {"t": "#新しい景色へ 　#SAMURAIBLUE 　#日本代表 　#WC2026 　#VAMOS 　", "dur": 50.0, "dir": "r", "st": "solid", "sz": 34, "y": 0.22, "c": "accent"}, {"t": "謙虚に・ひたむきに・たくましく ／ 勝負は一瞬 ／ 意志あるところに道あり ／ ", "dur": 81.0, "dir": "l", "st": "solid", "sz": 30, "y": 0.4, "c": "sub"}, {"t": "26 WARRIORS ・ ONE TEAM ・ 世界へ ・ TO THE NEW HORIZON ・ ", "dur": 60.0, "dir": "r", "st": "stroke", "sz": 78, "y": 0.58}, {"t": "JAPAN NATIONAL TEAM 　日本代表 　ニッポン 　", "dur": 72.0, "dir": "l", "st": "solid", "sz": 28, "y": 0.76, "c": "sub"}, {"t": "GO FOR THE WORLD ・ 世界を、驚かせ。 ・ #VAMOS_JAPAN ・ ", "dur": 54.0, "dir": "r", "st": "stroke", "sz": 70, "y": 0.93}], STAFF=[{"role": "監督", "jp": "森保 一", "en": "MORIYASU Hajime"}, {"role": "コーチ", "jp": "名波 浩", "en": "NANAMI Hiroshi"}, {"role": "コーチ", "jp": "齊藤 俊秀", "en": "SAITO Toshihide"}, {"role": "コーチ", "jp": "中村 俊輔", "en": "NAKAMURA Shunsuke"}, {"role": "コーチ", "jp": "前田 遼一", "en": "MAEDA Ryoichi"}, {"role": "コーチ", "jp": "長谷部 誠", "en": "HASEBE Makoto"}, {"role": "フィジカルコーチ", "jp": "松本 良一", "en": "MATSUMOTO Ryoichi"}, {"role": "GKコーチ", "jp": "下田 崇", "en": "SHIMODA Takashi"}];
+const CW=196, CH=262, CELLX=238, CELLY=300, PAD=160;
+function pcl(p){return p==="MF/FW"?"MFFW":p}
+function age(dob){if(!dob)return"";const d=new Date(dob);if(isNaN(d))return"";const t=new Date();let a=t.getFullYear()-d.getFullYear();const m=t.getMonth()-d.getMonth();if(m<0||(m===0&&t.getDate()<d.getDate()))a--;return a;}
+function rnd(s){return Math.random();}
+const world=document.getElementById('world'),vp=document.getElementById('viewport');
+let WORLD_W=0,WORLD_H=0,slots={},occupied=[],mode="ALL";
+function _isect(a,b,p){return !(a.x>b.x+b.w+p||a.x+a.w+p<b.x||a.y>b.y+b.h+p||a.y+a.h+p<b.y);}
+function placeFree(w,h,p){for(let t=0;t<90;t++){const x=12+Math.random()*(WORLD_W-w-24);const y=12+Math.random()*(WORLD_H-h-24);const r={x,y,w,h};let ok=true;for(const o of occupied){if(_isect(r,o,p)){ok=false;break;}}if(ok){occupied.push(r);return {x,y};}}return null;}
+function buildWorld(){
+  world.innerHTML='';slots={};occupied=[];
+  const items=[];
+  if(mode==="ALL"||mode==="MEMBERS")PLAYERS.forEach(p=>items.push({type:'card',p}));
+  if(mode==="ALL"||mode==="WORDS")QUOTES.forEach(qd=>items.push({type:'quote',q:qd}));
+  if(mode==="ALL"||mode==="LINK")(LINKS||[]).forEach(lk=>items.push({type:'link',lk}));
+  for(let k=items.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[items[k],items[j]]=[items[j],items[k]];}
+  const aspectV=vp.clientWidth/Math.max(1,vp.clientHeight);
+  const COLS=Math.max(2,Math.min(13,Math.round(Math.sqrt(aspectV*Math.max(1,items.length)*(CELLY/CELLX)))));
+  const rows=Math.max(1,Math.ceil(items.length/COLS));
+  WORLD_W=COLS*CELLX+PAD*2; WORLD_H=rows*CELLY+PAD*2;
+  world.style.width=WORLD_W+'px';world.style.height=WORLD_H+'px';
+  if(typeof computeMinZoom==='function'){MINZ=computeMinZoom();}
+  // background filled with flowing text rows, alternating direction (even=右→左 / odd=左→右), random size, slow
+  const mpool=[];
+  (MARQS||[]).forEach(m=>mpool.push(m.t));
+  (HASHTAGS||[]).forEach(h=>mpool.push(h.t+'　'));
+  if(!mpool.length)mpool.push("SAMURAI BLUE 2026 ・ ");
+  let my=-30,mrow=0;
+  while(my<WORLD_H+30){
+    const txt=mpool[mrow%mpool.length];
+    const fs=Math.round(30+Math.random()*64);
+    const dir=(mrow%2===0)?'l':'r';            // l=scrollL=右から左, r=scrollR=左から右
+    const dur=Math.max(150,Math.min(720,Math.round(0.17*(((txt||'').length)+1)*fs*(0.92+Math.random()*0.16))));// speed ∝ size×length so every row is uniformly slow
+    const op=(0.10+Math.random()*0.22).toFixed(3);
+    const el=document.createElement('div');
+    el.className='marq '+dir+' solid';
+    el.style.top=my+'px';el.style.fontSize=fs+'px';el.style.width=WORLD_W+'px';el.style.zIndex=1;
+    el.innerHTML=`<span class="tk" style="animation-duration:${dur}s;color:rgba(0,30,85,${op})">${(txt+'　').repeat(8)}${(txt+'　').repeat(8)}</span>`;
+    world.appendChild(el);
+    my+=fs*1.45+8;mrow++;
+  }
+  items.forEach((it,i)=>{
+    const col=i%COLS,row=Math.floor(i/COLS);
+    const cxr=PAD+col*CELLX+CELLX/2;
+    const cyr=PAD+row*CELLY+CELLY/2;
+    const rot=(Math.random()-.5)*10;
+    occupied.push({x:cxr-CW/2,y:cyr-CH/2,w:CW,h:CH});
+    const el=document.createElement('div');el.className='item';
+    if(it.type==='card'){
+      const p=it.p;
+      el.innerHTML=`<div class="card" style="width:${CW}px;height:${CH}px">
+        <div class="photo"></div><div class="nofb" style="display:none"><span>${p.no}</span></div>
+        <div class="ov"></div><div class="cno">${p.no}</div>
+        <div class="cinfo"><div class="en">${p.en.split(' ')[0]}<br>${p.en.split(' ').slice(1).join(' ')}</div><div class="jp">${p.jp}</div></div></div>`;
+      el.style.left=(cxr-CW/2)+'px';el.style.top=(cyr-CH/2)+'px';el.style.transform=`rotate(${rot.toFixed(2)}deg)`;
+      const cardEl=el.querySelector('.card');
+      cardEl.addEventListener('click',()=>{if(dragged)return;openModal(p.no);});
+      const ph=el.querySelector('.photo'),fb=el.querySelector('.nofb');
+      ph.style.backgroundImage=`url('${p.photo}')`;const im=new Image();im.onerror=()=>{ph.style.display='none';fb.style.display='flex';};im.src=p.photo;
+      cardEl.style.animationDelay=(Math.random()*1700).toFixed(0)+'ms';
+      slots[p.no]=cardEl;
+    }else if(it.type==='link'){
+      const lk=it.lk;
+      el.innerHTML=`<a class="lcard" href="${lk.u}" target="_blank" rel="noopener" style="width:${CW}px;height:${CH}px"><div class="lk-top">VIEW MORE</div><div class="lk-mid">${lk.t}</div><div class="lk-arr">↗</div></a>`;
+      el.style.left=(cxr-CW/2)+'px';el.style.top=(cyr-CH/2)+'px';el.style.transform=`rotate(${rot.toFixed(2)}deg)`;
+      const _la=el.querySelector('.lcard');_la.style.animationDelay=(Math.random()*1700).toFixed(0)+'ms';
+      _la.addEventListener('click',e=>{if(dragged)e.preventDefault();});
+    }else{
+      const qd=it.q;const len=(qd.t||'').replace(/\s/g,'').length;
+      const fs=len<=8?30:(len<=14?25:(len<=22?20:17));
+      const srcA=qd.src?`<a class="qsrc" href="${qd.src}" target="_blank" rel="noopener">SOURCE ↗</a>`:'';
+      el.innerHTML=`<div class="qcard c-${qd.c||'ink'}" style="width:${CW}px;height:${CH}px"><div class="qmark">“</div><div class="qtext" style="font-size:${fs}px">${qd.t}</div><div class="qfoot"><span class="qby">${qd.by}</span>${srcA}</div></div>`;
+      el.style.left=(cxr-CW/2)+'px';el.style.top=(cyr-CH/2)+'px';el.style.transform=`rotate(${rot.toFixed(2)}deg)`;
+      const _qc=el.querySelector('.qcard');if(_qc){_qc.style.animationDelay=(Math.random()*1700).toFixed(0)+'ms';if(qd.src){_qc.style.cursor='pointer';_qc.addEventListener('click',()=>{if(dragged)return;window.open(qd.src,'_blank','noopener');});}}
+      const _sa=el.querySelector('.qsrc');if(_sa)_sa.addEventListener('click',e=>{e.stopPropagation();if(dragged)e.preventDefault();});
+    }
+    world.appendChild(el);
+  });
+}
+
+// CAMERA
+let panX=0,panY=0,zoom=1;
+const MAXZ=1.5;
+function computeMinZoom(){const VW=vp.clientWidth,VH=vp.clientHeight,pad=60;if(WORLD_W<=0||WORLD_H<=0)return 0.5;let z=Math.min((VW-pad*2)/WORLD_W,(VH-pad*2)/WORLD_H);return Math.max(0.08,Math.min(1.2,z));}
+let MINZ=1.0;
+function clamp(){const VW=vp.clientWidth,VH=vp.clientHeight,m=120;const ww=WORLD_W*zoom,wh=WORLD_H*zoom;
+  if(ww<=VW)panX=(VW-ww)/2;else panX=Math.min(m,Math.max(VW-m-ww,panX));
+  if(wh<=VH)panY=(VH-wh)/2;else panY=Math.min(m,Math.max(VH-m-wh,panY));}
+function apply(){clamp();world.style.transform=`translate(${panX.toFixed(1)}px,${panY.toFixed(1)}px) scale(${zoom.toFixed(4)})`;}
+let targetZoom=zoom,zAnchor={x:0,y:0},velX=0,velY=0,panning=false,raf=0,running=false,lastT=0,tween=null;
+function clampZ(z){return Math.min(MAXZ,Math.max(MINZ,z));}
+function zoomAround(sx,sy,nz){nz=clampZ(nz);const wx=(sx-panX)/zoom,wy=(sy-panY)/zoom;zoom=nz;panX=sx-wx*zoom;panY=sy-wy*zoom;}
+function zoomAt(sx,sy,nz){tween=null;zAnchor={x:sx,y:sy};targetZoom=clampZ(nz);kick();}
+function kick(){if(!running){running=true;lastT=performance.now();raf=requestAnimationFrame(loop);}}
+function loop(now){const dt=Math.min(44,(now-lastT)||16);lastT=now;let active=false;
+  if(tween){let k=Math.min(1,(now-tween.t0)/tween.dur);const e=1-Math.pow(1-k,3);
+    panX=tween.sx+(tween.tx-tween.sx)*e;panY=tween.sy+(tween.ty-tween.sy)*e;zoom=tween.sz+(tween.tz-tween.sz)*e;
+    if(k>=1){tween=null;targetZoom=zoom;}else active=true;}
+  else{
+    if(Math.abs(targetZoom-zoom)>0.0008){zoomAround(zAnchor.x,zAnchor.y,zoom+(targetZoom-zoom)*0.22);active=true;}
+    else if(zoom!==targetZoom){zoomAround(zAnchor.x,zAnchor.y,targetZoom);}
+    if(!panning&&(Math.abs(velX)>0.015||Math.abs(velY)>0.015)){panX+=velX*dt;panY+=velY*dt;const fr=Math.pow(0.93,dt/16);velX*=fr;velY*=fr;active=true;}
+  }
+  apply();
+  if(active)raf=requestAnimationFrame(loop);else running=false;
+}
+function flyTo(tpx,tpy,tz,dur){velX=velY=0;tween={sx:panX,sy:panY,sz:zoom,tx:tpx,ty:tpy,tz:clampZ(tz),t0:performance.now(),dur:dur||650};kick();}
+function fitTo(x0,y0,x1,y1,pad){pad=pad||80;const VW=vp.clientWidth,VH=vp.clientHeight;const bw=x1-x0,bh=y1-y0;
+  const z=clampZ(Math.min((VW-pad*2)/bw,(VH-pad*2)/bh));flyTo((VW-bw*z)/2-x0*z,(VH-bh*z)/2-y0*z,z);}
+function fitAll(){fitTo(0,0,WORLD_W,WORLD_H,20);}
+function defaultZoom(){return Math.max(MINZ,Math.min(MAXZ,Math.min(1.0,vp.clientWidth/(CELLX*2.2))));}
+function goDefault(anim){const z=defaultZoom();const tpx=vp.clientWidth/2-(WORLD_W/2)*z,tpy=vp.clientHeight/2-(WORLD_H/2)*z;if(anim){flyTo(tpx,tpy,z,600);}else{tween=null;zoom=z;panX=tpx;panY=tpy;targetZoom=z;apply();}}
+function flyToEl(el){const L=parseFloat(el.style.left),T=parseFloat(el.style.top);fitTo(L-180,T-140,L+360,T+260,60);}
+function fitPositions(list){if(!list.length){fitAll();return;}let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  list.forEach(p=>{const c=slots[p.no].parentElement;const L=parseFloat(c.style.left),T=parseFloat(c.style.top);x0=Math.min(x0,L);y0=Math.min(y0,T);x1=Math.max(x1,L+CW);y1=Math.max(y1,T+CH);});fitTo(x0,y0,x1,y1,90);}
+let pts=new Map(),dragged=false,startDist=0,downX=0,downY=0,lastMX=0,lastMY=0,lastMT=0;
+vp.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});dragged=false;panning=true;tween=null;velX=velY=0;downX=e.clientX;downY=e.clientY;lastMX=e.clientX;lastMY=e.clientY;lastMT=performance.now();vp.classList.add('grabbing');
+  if(pts.size===2){const a=[...pts.values()];startDist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}});
+vp.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pts.size===1){panX+=e.clientX-prev.x;panY+=e.clientY-prev.y;const nt=performance.now(),ddt=Math.max(1,nt-lastMT);velX=(e.clientX-lastMX)/ddt;velY=(e.clientY-lastMY)/ddt;lastMX=e.clientX;lastMY=e.clientY;lastMT=nt;
+    if(Math.hypot(e.clientX-downX,e.clientY-downY)>6){if(!dragged){try{vp.setPointerCapture(e.pointerId);}catch(_){}}dragged=true;}apply();}
+  else if(pts.size===2){const a=[...pts.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);const r=vp.getBoundingClientRect();const mid={x:(a[0].x+a[1].x)/2-r.left,y:(a[0].y+a[1].y)/2-r.top};
+    if(startDist>0){zoomAround(mid.x,mid.y,zoom*(d/startDist));targetZoom=zoom;startDist=d;apply();}dragged=true;velX=velY=0;}});
+function up(e){if(pts.has(e.pointerId))pts.delete(e.pointerId);if(pts.size<2)startDist=0;if(pts.size===0){panning=false;vp.classList.remove('grabbing');if(Math.hypot(velX,velY)>0.02)kick();}}
+vp.addEventListener('pointerup',up);vp.addEventListener('pointercancel',up);
+vp.addEventListener('wheel',e=>{e.preventDefault();const r=vp.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,targetZoom*Math.exp(-e.deltaY*0.0016));},{passive:false});
+let hinted=false;function hideHint(){if(hinted)return;hinted=true;document.getElementById('hint').style.opacity=0;}
+vp.addEventListener('pointerdown',hideHint);vp.addEventListener('wheel',hideHint);
+document.getElementById('modes').addEventListener('click',e=>{if(!e.target.classList.contains('tab'))return;document.querySelectorAll('#modes .tab').forEach(t=>t.classList.remove('active'));e.target.classList.add('active');mode=e.target.dataset.mode;buildWorld();goDefault(true);});
+document.getElementById('zin').addEventListener('click',()=>zoomAt(vp.clientWidth/2,vp.clientHeight/2,zoom*1.3));
+document.getElementById('zout').addEventListener('click',()=>zoomAt(vp.clientWidth/2,vp.clientHeight/2,zoom/1.3));
+document.getElementById('zfit').addEventListener('click',fitAll);
+function tagsFor(p){const t=["#"+p.en.split(" ")[0],"#"+(p.pos==="MF/FW"?"MF_FW":p.pos),"#WC2026"];if(p.country!=="日本")t.push("#"+p.country);return t;}
+function openModal(no){const p=PLAYERS.find(x=>String(x.no)===String(no));if(!p)return;
+  document.getElementById('sheet').innerHTML=`<button class="close" onclick="closeModal()">✕</button>
+    <div class="stop"><div class="sphoto" id="sphoto" style="background-image:url('${p.photo}')"><div class="pno">${p.no}</div></div>
+      <div class="shead"><span class="pos ${pcl(p.pos)}">${p.pos}</span><div class="jp">${p.jp}</div><div class="en">${p.en}</div>
+        <div class="club">${p.club}${p.country&&p.country!=="日本"?"／"+p.country:""}</div></div></div>
+    <div class="kpis"><div class="kpi"><div class="v">${age(p.dob)}</div><div class="k">AGE</div></div>
+      <div class="kpi"><div class="v">${p.caps}</div><div class="k">CAPS</div></div><div class="kpi"><div class="v">${p.goals}</div><div class="k">GOALS</div></div></div>
+    <div class="bio"><span><b>生年月日</b> ${p.dob}</span><span><b>出身</b> ${p.bp}</span><span><b>身長</b> ${p.h}cm</span><span><b>体重</b> ${p.w}kg</span></div>
+    <div class="det"><div class="blk"><h4>FEATURES ・ 特徴</h4><p>${p.feat||"—"}</p></div><div class="blk"><h4>PERSONALITY ・ 性格</h4><p>${p.pers||"—"}</p></div></div>
+    <div class="tags">${tagsFor(p).map(t=>`<span>${t}</span>`).join('')}</div>
+    <div class="acts"><a class="a-yt" href="${p.yt}" target="_blank">▶ YouTubeで観る（VIEW MORE）</a><a class="a-jfa" href="${p.prof}" target="_blank">JFA選手ページ ↗</a></div>`;
+  const sp=document.getElementById('sphoto');const im=new Image();im.onerror=()=>{sp.style.backgroundImage='none';sp.insertAdjacentHTML('beforeend',`<div class="nofb"><span>${p.no}</span></div>`);};im.src=p.photo;
+  document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+const TC=[["no","No","7%"],["pos","Pos","9%"],["jp","選手","19%"],["age","年齢","7%"],["club","所属","21%"],["bp","出身","13%"],["hw","身長/体重","11%"],["caps","出場","6%"],["goals","得点","7%"]];
+let tsk="no",tsd="asc";
+function tsortList(){let l=PLAYERS.slice();const po={GK:0,DF:1,"MF/FW":2};
+  l.sort((a,b)=>{let x,y;
+    if(tsk==="age"){x=age(a.dob)||0;y=age(b.dob)||0;}
+    else if(tsk==="jp"){x=a.en||"";y=b.en||"";}
+    else if(tsk==="hw"){x=a.h||0;y=b.h||0;}
+    else if(tsk==="pos"){x=po[a.pos];y=po[b.pos];}
+    else{x=a[tsk]??0;y=b[tsk]??0;}
+    return (x<y?-1:x>y?1:0)*(tsd==="asc"?1:-1)||((a.no||0)-(b.no||0));});
+  return l;}
+function syncSortUI(){const sl=document.getElementById('tsort');if(sl)sl.value=(["no","pos","age","h","w","caps","goals","jp"].includes(tsk)?tsk:"no");const d=document.getElementById('tdir');if(d)d.textContent=tsd==="asc"?"昇順":"降順";}
+function renderTable(){const list=tsortList();
+  document.getElementById('thead').innerHTML='<tr>'+TC.map(c=>`<th data-k="${c[0]}" style="width:${c[2]}">${c[1]}<span class="arr">${tsk===c[0]?(tsd==="asc"?"▲":"▼"):""}</span></th>`).join('')+'</tr>';
+  document.getElementById('tbody').innerHTML=list.map(p=>`<tr data-no="${p.no}">
+    <td class="n">${p.no}</td><td><span class="pchip ${pcl(p.pos)}">${p.pos}</span></td>
+    <td><span class="nm">${p.jp}</span><br><span style="font-size:10px;color:#9094a0">${p.en}</span></td>
+    <td class="n">${age(p.dob)}</td>
+    <td>${p.club}${(p.country&&p.country!=="日本")?`<br><span style="color:#9094a0;font-size:11px">${p.country}</span>`:""}</td>
+    <td>${p.bp}</td><td class="n">${p.h}/${p.w}</td><td class="n">${p.caps}</td><td class="n">${p.goals}</td></tr>`).join('');
+  document.getElementById('plist').innerHTML=list.map(p=>`<div class="pitem" data-no="${p.no}">
+    <div class="pno">${p.no}</div>
+    <div class="pmain"><div class="pnm">${p.jp}<span class="pchip ${pcl(p.pos)}">${p.pos}</span></div>
+      <div class="pen">${p.en}</div>
+      <div class="pmeta"><span><b>${age(p.dob)}</b>歳</span><span>${p.h}cm / ${p.w}kg</span><span>出場<b>${p.caps}</b></span><span>得点<b>${p.goals}</b></span><span>出身: ${p.bp}</span><span>${p.club}${(p.country&&p.country!=="日本")?"／"+p.country:""}</span></div>
+    </div></div>`).join('');
+  document.querySelectorAll('#thead th').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(tsk===k)tsd=tsd==="asc"?"desc":"asc";else{tsk=k;tsd="asc";}syncSortUI();renderTable();}));
+  document.querySelectorAll('#tbody tr,#plist .pitem').forEach(r=>r.addEventListener('click',()=>{closeT();openModal(r.dataset.no);}));}
+document.getElementById('tsort').addEventListener('change',e=>{tsk=e.target.value;tsd="asc";syncSortUI();renderTable();});
+document.getElementById('tdir').addEventListener('click',()=>{tsd=tsd==="asc"?"desc":"asc";syncSortUI();renderTable();});
+function staffRows(list){return '<div class="slist">'+list.map(x=>`<div class="srow"><span class="srole">${x.role}</span><span class="snm">${x.jp}</span><span class="sen">${x.en}</span></div>`).join('')+'</div>';}
+function setList(which){document.querySelectorAll('#ltabs .ltab').forEach(t=>t.classList.toggle('active',t.dataset.list===which));
+  document.getElementById('listPlayers').style.display=which==='players'?'':'none';
+  document.getElementById('listBoss').style.display=which==='boss'?'':'none';
+  document.getElementById('listStaff').style.display=which==='staff'?'':'none';
+  document.getElementById('sortwrap').style.display=which==='players'?'':'none';}
+function openT(){syncSortUI();renderTable();
+  document.getElementById('listBoss').innerHTML=staffRows(STAFF.filter(s=>s.role==='監督'));
+  document.getElementById('listStaff').innerHTML=staffRows(STAFF.filter(s=>s.role!=='監督'));
+  setList('players');
+  document.getElementById('tableModal').classList.add('open');}
+document.getElementById('ltabs').addEventListener('click',e=>{const b=e.target.closest('.ltab');if(b)setList(b.dataset.list);});
+function closeT(){document.getElementById('tableModal').classList.remove('open');}
+function openI(){document.getElementById('infoModal').classList.add('open');}
+function closeI(){document.getElementById('infoModal').classList.remove('open');}
+document.getElementById('openTable').addEventListener('click',openT);
+document.getElementById('openInfo').addEventListener('click',openI);
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));});
+let _rz;window.addEventListener('resize',()=>{MINZ=computeMinZoom();if(zoom<MINZ)zoom=MINZ;targetZoom=clampZ(targetZoom);apply();clearTimeout(_rz);_rz=setTimeout(()=>{buildWorld();goDefault(false);},250);});
+buildWorld();
+goDefault(false);
+(function(){const sp=document.getElementById('splash');if(!sp)return;setTimeout(()=>{sp.classList.add('hide');setTimeout(()=>{sp.style.display='none';},950);},1900);})();
+</script>
+</body>
+</html>
