@@ -20,7 +20,7 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 @keyframes bgshift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(3%,-2%) scale(1.06)}}
 .dots{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:radial-gradient(rgba(0,0,0,.05) 1.2px,transparent 1.3px);background-size:30px 30px;animation:dot 40s linear infinite}
 @keyframes dot{from{background-position:0 0}to{background-position:300px 300px}}
-.topbar{position:relative;z-index:20;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;border-bottom:none;background:rgba(255,255,255,.92);backdrop-filter:blur(8px)}
+.topbar{position:relative;z-index:20;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--ink);background:rgba(255,255,255,.92);backdrop-filter:blur(8px)}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;margin-right:6px}
 .brand .b{font-size:17px;letter-spacing:.01em;white-space:nowrap}
 .brand .logo{height:30px;width:auto;display:block}
@@ -171,7 +171,7 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 </style>
 </head>
 <body>
-<div id="splash"><img class="splash-logo" src="top-logo.svg" alt="SAMURAI BLUE"></div>
+<div id="splash"><img class="splash-logo" src="logo.svg" alt="SAMURAI BLUE"></div>
 <div class="bg"></div><div class="dots"></div>
 <div class="app">
   <div class="topbar">
@@ -305,9 +305,9 @@ function buildWorld(){
 
 // CAMERA
 let panX=0,panY=0,zoom=1;
-const MAXZ=1.5;
-function computeMinZoom(){const VW=vp.clientWidth,VH=vp.clientHeight,pad=60;if(WORLD_W<=0||WORLD_H<=0)return 0.5;let z=Math.min((VW-pad*2)/WORLD_W,(VH-pad*2)/WORLD_H);return Math.max(0.08,Math.min(1.2,z));}
-let MINZ=1.0;
+const MAXZ=2.2;
+function computeMinZoom(){const VW=vp.clientWidth,VH=vp.clientHeight;if(WORLD_W<=0||WORLD_H<=0)return 0.5;let z=Math.min(VW/WORLD_W,VH/WORLD_H)*1.08;return Math.max(0.08,Math.min(1.9,z));}
+let MINZ=0.5;
 function clamp(){const VW=vp.clientWidth,VH=vp.clientHeight,m=120;const ww=WORLD_W*zoom,wh=WORLD_H*zoom;
   if(ww<=VW)panX=(VW-ww)/2;else panX=Math.min(m,Math.max(VW-m-ww,panX));
   if(wh<=VH)panY=(VH-wh)/2;else panY=Math.min(m,Math.max(VH-m-wh,panY));}
@@ -332,7 +332,7 @@ function loop(now){const dt=Math.min(44,(now-lastT)||16);lastT=now;let active=fa
 function flyTo(tpx,tpy,tz,dur){velX=velY=0;tween={sx:panX,sy:panY,sz:zoom,tx:tpx,ty:tpy,tz:clampZ(tz),t0:performance.now(),dur:dur||650};kick();}
 function fitTo(x0,y0,x1,y1,pad){pad=pad||80;const VW=vp.clientWidth,VH=vp.clientHeight;const bw=x1-x0,bh=y1-y0;
   const z=clampZ(Math.min((VW-pad*2)/bw,(VH-pad*2)/bh));flyTo((VW-bw*z)/2-x0*z,(VH-bh*z)/2-y0*z,z);}
-function fitAll(){fitTo(0,0,WORLD_W,WORLD_H,20);}
+function fitAll(){const z=computeMinZoom();const tpx=vp.clientWidth/2-(WORLD_W/2)*z,tpy=vp.clientHeight/2-(WORLD_H/2)*z;flyTo(tpx,tpy,z);}
 function defaultZoom(){return Math.max(MINZ,Math.min(MAXZ,Math.min(1.0,vp.clientWidth/(CELLX*2.2))));}
 function goDefault(anim){const z=defaultZoom();const tpx=vp.clientWidth/2-(WORLD_W/2)*z,tpy=vp.clientHeight/2-(WORLD_H/2)*z;if(anim){flyTo(tpx,tpy,z,600);}else{tween=null;zoom=z;panX=tpx;panY=tpy;targetZoom=z;apply();}}
 function flyToEl(el){const L=parseFloat(el.style.left),T=parseFloat(el.style.top);fitTo(L-180,T-140,L+360,T+260,60);}
