@@ -243,15 +243,16 @@ a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
 <div class="modal" id="tableModal"><div class="tsheet">
   <div class="th">
     <div class="ltabs" id="ltabs">
-      <button class="ltab" data-list="boss">監督</button>
       <button class="ltab active" data-list="players">選手一覧</button>
-      <button class="ltab" data-list="staff">スタッフ一覧</button>
+      <button class="ltab" data-list="staff">監督・スタッフ一覧</button>
     </div>
-    <div class="thctl"><span class="sortwrap" id="sortwrap">並び替え
-      <select id="tsort"><option value="no">背番号</option><option value="pos">ポジション</option><option value="age">年齢</option><option value="h">身長</option><option value="w">体重</option><option value="caps">出場</option><option value="goals">得点</option><option value="jp">名前</option></select>
-      <button class="tdir" id="tdir">昇順</button></span>
+    <div class="thctl">
       <button class="close" onclick="closeT()">✕</button>
     </div>
+  </div>
+  <div id="sortwrap" style="display:flex;align-items:center;gap:6px;padding:10px 22px;border-bottom:1px solid var(--line);font-size:11px;font-weight:700;color:var(--sub)">並び替え
+    <select id="tsort"><option value="no">背番号</option><option value="pos">ポジション</option><option value="age">年齢</option><option value="h">身長</option><option value="w">体重</option><option value="caps">出場</option><option value="goals">得点</option><option value="jp">名前</option></select>
+    <button class="tdir" id="tdir">昇順</button>
   </div>
   <div class="tscroll">
     <div id="listPlayers"><table class="ptable"><thead id="thead"></thead><tbody id="tbody"></tbody></table><div class="plist" id="plist"></div></div>
@@ -444,12 +445,10 @@ document.getElementById('tdir').addEventListener('click',()=>{tsd=tsd==="asc"?"d
 function staffRows(list){return '<div class="slist">'+list.map(x=>{const inner=`<span class="srole">${x.role}</span><span class="snm">${x.jp}</span><span class="sen">${x.en}</span>${x.url?'<span class="sarr">↗</span>':''}`;return x.url?`<a class="srow" href="${x.url}" target="_blank" rel="noopener">${inner}</a>`:`<div class="srow">${inner}</div>`;}).join('')+'</div>';}
 function setList(which){document.querySelectorAll('#ltabs .ltab').forEach(t=>t.classList.toggle('active',t.dataset.list===which));
   document.getElementById('listPlayers').style.display=which==='players'?'':'none';
-  document.getElementById('listBoss').style.display=which==='boss'?'':'none';
   document.getElementById('listStaff').style.display=which==='staff'?'':'none';
   document.getElementById('sortwrap').style.display=which==='players'?'':'none';}
 function openT(){syncSortUI();renderTable();
-  document.getElementById('listBoss').innerHTML=staffRows(STAFF.filter(s=>s.role==='監督'));
-  document.getElementById('listStaff').innerHTML=staffRows(STAFF.filter(s=>s.role!=='監督'));
+  document.getElementById('listStaff').innerHTML=staffRows(STAFF);
   setList('players');
   document.getElementById('tableModal').classList.add('open');}
 document.getElementById('ltabs').addEventListener('click',e=>{const b=e.target.closest('.ltab');if(b)setList(b.dataset.list);});
