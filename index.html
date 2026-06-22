@@ -65,7 +65,7 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 .viewport{position:relative;z-index:2;flex:1 1 auto;overflow:hidden;cursor:grab;touch-action:none}
 .viewport.grabbing{cursor:grabbing}
 .world{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
-.item{position:absolute;will-change:transform;z-index:5}
+.item{position:absolute;z-index:5}
 @keyframes cardIn{0%{transform:perspective(1000px) rotateY(-92deg) scale(.86);opacity:0}55%{opacity:1}100%{transform:perspective(1000px) rotateY(0deg) scale(1);opacity:1}}
 .card,.qcard,.lcard{animation:cardIn .6s cubic-bezier(.2,.75,.3,1) backwards}
 /* MARQUEE on world */
@@ -262,7 +262,8 @@ a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
 <div class="modal" id="infoModal"><div class="sheet" style="max-width:580px">
   <button class="close" onclick="closeI()">✕</button>
   <div class="info-body"><h3>SAMURAI BLUE 26<br>FIFA World Cup 2026</h3>
-    <p>ドラッグでキャンバスを動かし、ホイール/ピンチでカメラを拡大縮小。<br> カードをタップで選手詳細 やVIEW MOREで関連ページへ。</p>
+    <p><strong>サッカー日本代表「SAMURAI BLUE」26名の魅力を伝える非公式ファンサイト。選手データ・名言・公式SNSを網羅！FIFAワールドカップ2026を120%楽しむための情報をお届けします。</strong></p>
+    <p style="margin-top:16px">ドラッグでキャンバスを動かし、ホイール/ピンチでカメラを拡大縮小。<br> カードをタップで選手詳細 やVIEW MOREで関連ページへ。</p>
     <p style="margin-top:16px">言葉は監督・選手のインタビュー等からの抜粋です。<br>出典: JFA公式 / Number / ゲキサカ / サッカーキング / Wikipedia / スポーツナビ</p>
     <p style="margin-top:16px">出場数・得点はFIFA World Cup 2026招集発表時点の参考値です。</p>
     <p style="margin-top:16px">選手の写真は、© Japan Football Association. データ・写真・言葉の権利は各権利者に帰属します。 （※一部に非公式にGetty Images等の画像を加工して使用しています。）</p></div></div></div>
@@ -326,12 +327,14 @@ function buildWorld(){
       const ph=el.querySelector('.photo'),fb=el.querySelector('.nofb');
       ph.style.backgroundImage=`url('${p.photo}')`;const im=new Image();im.onerror=()=>{ph.style.display='none';fb.style.display='flex';};im.src=p.photo;
       cardEl.style.animationDelay=window._splashDone?(Math.random()*1200).toFixed(0)+'ms':'9999s';
+      el.style.willChange='transform';cardEl.addEventListener('animationend',()=>{el.style.willChange='auto';},{once:true});
       slots[p.no]=cardEl;
     }else if(it.type==='link'){
       const lk=it.lk;
       el.innerHTML=`<a class="lcard" href="${lk.u}" target="_blank" rel="noopener" style="width:${CW}px;height:${CH}px"><div class="lk-top">VIEW MORE</div><div class="lk-body"><div class="lk-mid">${lk.t}</div>${lk.sub?`<div class="lk-sub">${lk.sub}</div>`:''}</div><div class="lk-arr">↗</div></a>`;
       el.style.left=(cxr-CW/2)+'px';el.style.top=(cyr-CH/2)+'px';el.style.transform=`rotate(${rot.toFixed(2)}deg)`;
       const _la=el.querySelector('.lcard');_la.style.animationDelay=window._splashDone?(Math.random()*1200).toFixed(0)+'ms':'9999s';
+      el.style.willChange='transform';_la.addEventListener('animationend',()=>{el.style.willChange='auto';},{once:true});
       _la.addEventListener('click',e=>{if(dragged)e.preventDefault();});
     }else{
       const qd=it.q;const len=(qd.t||'').replace(/\s/g,'').length;
@@ -339,7 +342,7 @@ function buildWorld(){
       const srcA=qd.src?`<a class="qsrc" href="${qd.src}" target="_blank" rel="noopener">SOURCE ↗</a>`:'';
       el.innerHTML=`<div class="qcard c-${qd.c||'ink'}" style="width:${CW}px;height:${CH}px"><div class="qmark">“</div><div class="qtext" style="font-size:${fs}px">${qd.t}</div><div class="qfoot"><span class="qby">${qd.by}</span>${srcA}</div></div>`;
       el.style.left=(cxr-CW/2)+'px';el.style.top=(cyr-CH/2)+'px';el.style.transform=`rotate(${rot.toFixed(2)}deg)`;
-      const _qc=el.querySelector('.qcard');if(_qc){_qc.style.animationDelay=window._splashDone?(Math.random()*1200).toFixed(0)+'ms':'9999s';if(qd.src){_qc.style.cursor='pointer';_qc.addEventListener('click',()=>{if(dragged)return;window.open(qd.src,'_blank','noopener');});}}
+      const _qc=el.querySelector('.qcard');if(_qc){_qc.style.animationDelay=window._splashDone?(Math.random()*1200).toFixed(0)+'ms':'9999s';el.style.willChange='transform';_qc.addEventListener('animationend',()=>{el.style.willChange='auto';},{once:true});if(qd.src){_qc.style.cursor='pointer';_qc.addEventListener('click',()=>{if(dragged)return;window.open(qd.src,'_blank','noopener');});}}
       const _sa=el.querySelector('.qsrc');if(_sa)_sa.addEventListener('click',e=>{e.stopPropagation();if(dragged)e.preventDefault();});
     }
     world.appendChild(el);
