@@ -139,8 +139,8 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 .modal.open{display:flex}
 .sheet{position:relative;max-width:780px;width:100%;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);animation:pop .35s cubic-bezier(.22,.9,.3,1)}
 @keyframes pop{from{transform:translateY(20px) scale(.96);opacity:0}to{transform:none;opacity:1}}
-.close{position:absolute;top:13px;right:15px;z-index:5;cursor:pointer;width:38px;height:38px;border-radius:50%;border:none;background:rgba(20,22,28,.5);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
-.close:hover{background:var(--fill)}
+.close{position:absolute;top:13px;right:15px;z-index:5;cursor:pointer;width:38px;height:38px;border-radius:50%;border:1px solid var(--ink);background:#fff;color:var(--ink);font-size:18px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.close:hover{background:#001E55;color:#fff;border-color:#001E55}
 .stop{display:flex;flex-wrap:wrap}
 .sphoto{position:relative;flex:0 0 290px;max-width:290px;aspect-ratio:3/4;background-size:cover;background-position:top center;background-color:var(--fill)}
 .sphoto .pno{position:absolute;top:14px;left:16px;font-weight:900;font-size:44px;color:#fff;text-shadow:0 2px 12px #000}
@@ -205,7 +205,8 @@ a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
 .info-body{padding:24px 28px 30px;font-size:14px;line-height:1.9;color:#2a2d36}
 .info-body a{color:var(--accent)}.info-body h3{font-size:19px;margin-bottom:10px}
 @media(max-width:560px){.sphoto{flex-basis:100%;max-width:100%}.quote.sz-xl .qt{font-size:34px}.quote.sz-l .qt{font-size:26px}}
-@media(min-width:761px){#modal,#infoModal{align-items:center}}
+#infoModal{align-items:center}
+@media(min-width:761px){#modal{align-items:center}}
 </style>
 </head>
 <body>
@@ -249,7 +250,7 @@ a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
     <div class="thctl"><span class="sortwrap" id="sortwrap">並び替え
       <select id="tsort"><option value="no">背番号</option><option value="pos">ポジション</option><option value="age">年齢</option><option value="h">身長</option><option value="w">体重</option><option value="caps">出場</option><option value="goals">得点</option><option value="jp">名前</option></select>
       <button class="tdir" id="tdir">昇順</button></span>
-      <button class="close" style="position:static" onclick="closeT()">✕</button>
+      <button class="close" onclick="closeT()">✕</button>
     </div>
   </div>
   <div class="tscroll">
@@ -259,7 +260,7 @@ a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
   </div></div></div>
 <div class="modal" id="infoModal"><div class="sheet" style="max-width:580px">
   <button class="close" onclick="closeI()">✕</button>
-  <div class="info-body"><h3>SAMURAI BLUE 26 — FIFA World Cup 2026</h3>
+  <div class="info-body"><h3>SAMURAI BLUE 26<br>FIFA World Cup 2026</h3>
     <p>ドラッグでキャンバスを動かし、ホイール/ピンチでカメラを拡大縮小。<br> カードをタップで選手詳細 やVIEW MOREで関連ページへ。</p>
     <p style="margin-top:16px">言葉は監督・選手のインタビュー等からの抜粋です。<br>出典: JFA公式 / Number / ゲキサカ / サッカーキング / Wikipedia / スポーツナビ</p>
     <p style="margin-top:16px">出場数・得点はFIFA World Cup 2026招集発表時点の参考値です。</p>
