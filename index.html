@@ -41,14 +41,16 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 .dots{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:radial-gradient(rgba(0,0,0,.05) 1.2px,transparent 1.3px);background-size:30px 30px;animation:dot 40s linear infinite}
 @keyframes dot{from{background-position:0 0}to{background-position:300px 300px}}
 .topbar{position:relative;z-index:20;flex:0 0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--ink);background:rgba(255,255,255,.92);backdrop-filter:blur(8px)}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;margin-right:6px}
-.brand .b{font-size:17px;letter-spacing:.01em;white-space:nowrap}
-.brand .logo{height:30px;width:auto;display:block}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;margin-right:6px;min-width:0;flex:0 1 auto}
+.brand .b{font-size:clamp(11px,3.2vw,17px);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .logo{height:30px;width:auto;display:block;flex:0 0 auto}
 .tabs{display:flex;gap:4px}
 .navgroup{display:flex;align-items:center;gap:6px}
 .hamburger{display:none;cursor:pointer;font-size:22px;line-height:1;background:transparent;border:1px solid var(--ink);border-radius:3px;width:42px;height:40px;align-items:center;justify-content:center;color:var(--ink)}
 @media(max-width:760px){
-  .hamburger{display:flex}
+  .topbar{flex-wrap:nowrap;gap:6px;padding:9px 12px}
+  .brand .logo{height:24px}
+  .hamburger{display:flex;flex:0 0 auto}
   .navgroup{display:none;position:absolute;top:calc(100% + 6px);right:8px;flex-direction:column;align-items:stretch;gap:6px;background:#fff;border:1px solid var(--ink);border-radius:3px;padding:10px;box-shadow:0 14px 34px rgba(0,0,0,.18);z-index:40;min-width:190px}
   .navgroup.open{display:flex}
   .navgroup #modes{flex-direction:column;gap:6px}
@@ -133,9 +135,9 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 .zbtn:hover{background:var(--fill);color:#fff}
 .hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:15;font-size:11.5px;font-weight:600;color:var(--sub);background:#fff;padding:6px 14px;border-radius:3px;border:1px solid var(--ink);white-space:nowrap;pointer-events:none;transition:opacity .5s}
 .hint b{color:var(--accent)}
-.modal{position:fixed;inset:0;z-index:60;background:rgba(20,22,28,.55);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(20,22,28,.55);backdrop-filter:blur(7px);display:none;align-items:flex-start;justify-content:center;padding:16px;padding-top:max(16px,env(safe-area-inset-top));height:100vh;height:100dvh;overflow-y:auto}
 .modal.open{display:flex}
-.sheet{position:relative;max-width:780px;width:100%;max-height:92vh;overflow:auto;background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);animation:pop .35s cubic-bezier(.22,.9,.3,1)}
+.sheet{position:relative;max-width:780px;width:100%;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);animation:pop .35s cubic-bezier(.22,.9,.3,1)}
 @keyframes pop{from{transform:translateY(20px) scale(.96);opacity:0}to{transform:none;opacity:1}}
 .close{position:absolute;top:13px;right:15px;z-index:5;cursor:pointer;width:38px;height:38px;border-radius:50%;border:none;background:rgba(20,22,28,.5);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
 .close:hover{background:var(--fill)}
@@ -163,11 +165,11 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 .a-yt{background:var(--fill);color:#fff}.a-yt:hover{background:var(--fillh)}
 .a-jfa{background:#fff;border:1.5px solid var(--ink);color:var(--ink)}.a-jfa:hover{background:var(--fill);color:#fff}
 .a-sns{background:#fff;border:1.5px solid var(--ink);color:var(--ink)}.a-sns:hover{background:var(--fill);border-color:var(--fill);color:#fff}
-.tsheet{max-width:1060px;width:100%;max-height:90vh;background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.tsheet{max-width:1060px;width:100%;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);overflow:hidden;position:relative;display:flex;flex-direction:column}
 .tsheet .th{padding:16px 22px;font-weight:900;font-size:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .thctl{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--sub)}
-.thctl select{padding:7px 10px;border-radius:3px;border:1px solid var(--ink);font-family:inherit;font-weight:600;font-size:13px;outline:none}
-.tdir{cursor:pointer;border:1px solid var(--ink);background:#fff;border-radius:3px;padding:7px 12px;font-weight:700;font-size:12px}
+.thctl select{height:36px;padding:0 34px 0 12px;border-radius:3px;border:1px solid var(--ink);font-family:inherit;font-weight:600;font-size:13px;outline:none;line-height:1;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4.5l4 4 4-4' fill='none' stroke='%23000000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;background-size:11px}
+.tdir{cursor:pointer;border:1px solid var(--ink);background:#fff;border-radius:3px;height:36px;padding:0 14px;display:inline-flex;align-items:center;font-weight:700;font-size:13px;line-height:1}
 .tdir:hover{background:var(--fill);color:#fff}
 .tscroll{overflow-y:auto;overflow-x:hidden}
 .ptable{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
