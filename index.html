@@ -420,6 +420,8 @@ document.getElementById('modes').addEventListener('click',e=>{if(!e.target.class
 document.getElementById('zin').addEventListener('click',()=>zoomAt(vp.clientWidth/2,vp.clientHeight/2,zoom*1.3));
 document.getElementById('zout').addEventListener('click',()=>zoomAt(vp.clientWidth/2,vp.clientHeight/2,zoom/1.3));
 document.getElementById('zfit').addEventListener('click',fitAll);
+function lockBody(){document.body.style.position='fixed';document.body.style.width='100%';}
+function unlockBody(){if(!document.querySelector('.modal.open')){document.body.style.position='';document.body.style.width='';}}
 function tagsFor(p){const t=["#"+p.en.split(" ")[0],"#"+(p.pos==="MF/FW"?"MF_FW":p.pos),"#WC2026"];if(p.country!=="日本")t.push("#"+p.country);return t;}
 function openModal(no){const p=PLAYERS.find(x=>String(x.no)===String(no));if(!p)return;
   document.getElementById('sheet').innerHTML=`<button class="close" onclick="closeModal()">✕</button>
@@ -432,8 +434,8 @@ function openModal(no){const p=PLAYERS.find(x=>String(x.no)===String(no));if(!p)
     <div class="det"><div class="blk"><h4>FEATURES ・ 特徴</h4><p>${p.feat||"—"}</p></div><div class="blk"><h4>PERSONALITY ・ 性格</h4><p>${p.pers||"—"}</p></div></div>
     <div class="acts"><a class="a-yt" href="${p.yt}" target="_blank">▶ YouTubeで観る</a><a class="a-jfa" href="${p.prof}" target="_blank">JFA選手ページ ↗</a>${p.x?`<a class="a-sns" href="${p.x}" target="_blank" rel="noopener">X (Twitter) ↗</a>`:""}${p.ig?`<a class="a-sns" href="${p.ig}" target="_blank" rel="noopener">Instagram ↗</a>`:""}</div>`;
   const sp=document.getElementById('sphoto');const im=new Image();im.onerror=()=>{sp.style.backgroundImage='none';sp.insertAdjacentHTML('beforeend',`<div class="nofb"><span>${p.no}</span></div>`);};im.src=p.photo;
-  document.getElementById('modal').classList.add('open');}
-function closeModal(){document.getElementById('modal').classList.remove('open');}
+  document.getElementById('modal').classList.add('open');lockBody();}
+function closeModal(){document.getElementById('modal').classList.remove('open');unlockBody();}
 const TC=[["no","No","6%"],["pos","Pos","8%"],["jp","選手","18%"],["age","年齢","7%"],["club","所属","20%"],["bp","出身","12%"],["h","身長","8%"],["w","体重","8%"],["caps","出場","6.5%"],["goals","得点","6.5%"]];
 let tsk="no",tsd="asc";
 function tsortList(){let l=PLAYERS.slice();const po={GK:0,DF:1,"MF/FW":2};
@@ -479,18 +481,21 @@ function setList(which){document.querySelectorAll('#ltabs .ltab').forEach(t=>t.c
 function openT(){syncSortUI();renderTable();
   document.getElementById('listStaff').innerHTML=staffRows(STAFF);
   setList('players');
-  document.getElementById('tableModal').classList.add('open');}
+  document.getElementById('tableModal').classList.add('open');lockBody();}
 document.getElementById('ltabs').addEventListener('click',e=>{const b=e.target.closest('.ltab');if(b)setList(b.dataset.list);});
-function closeT(){document.getElementById('tableModal').classList.remove('open');}
-function openI(){document.getElementById('infoModal').classList.add('open');}
-function closeI(){document.getElementById('infoModal').classList.remove('open');}
+function closeT(){document.getElementById('tableModal').classList.remove('open');unlockBody();}
+function openI(){document.getElementById('infoModal').classList.add('open');lockBody();}
+function closeI(){document.getElementById('infoModal').classList.remove('open');unlockBody();}
 document.getElementById('openTable').addEventListener('click',openT);
 document.getElementById('openInfo').addEventListener('click',openI);
 document.getElementById('hamburger').addEventListener('click',()=>{document.getElementById('navgroup').classList.toggle('open');});
 document.getElementById('navgroup').addEventListener('click',e=>{if(e.target.closest('.tab,.ib'))document.getElementById('navgroup').classList.remove('open');});
 document.addEventListener('click',e=>{const ng=document.getElementById('navgroup'),hb=document.getElementById('hamburger');if(ng.classList.contains('open')&&!ng.contains(e.target)&&e.target!==hb&&!hb.contains(e.target))ng.classList.remove('open');});
-document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));});
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m){m.classList.remove('open');unlockBody();}});
+  m.addEventListener('touchmove',e=>{if(!e.target.closest('.sheet,.tscroll,.slist,.info-body'))e.preventDefault();},{passive:false});
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));unlockBody();}});
 let _rz;window.addEventListener('resize',()=>{MINZ=computeMinZoom();if(zoom<MINZ)zoom=MINZ;targetZoom=clampZ(targetZoom);apply();clearTimeout(_rz);_rz=setTimeout(()=>{buildWorld();goDefault(false);},250);});
 window._splashDone=false;
 buildWorld();
