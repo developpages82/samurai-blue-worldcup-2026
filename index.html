@@ -64,7 +64,7 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 .ib.solid{background:var(--fill);color:#fff}.ib.solid:hover{background:var(--fill);border-color:var(--accent)}
 .viewport{position:relative;z-index:2;flex:1 1 auto;overflow:hidden;cursor:grab;touch-action:none}
 .viewport.grabbing{cursor:grabbing}
-.world{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.world{position:absolute;top:0;left:0;transform-origin:0 0}
 .item{position:absolute;z-index:5}
 @keyframes cardIn{0%{transform:perspective(1000px) rotateY(-92deg) scale(.86);opacity:0}55%{opacity:1}100%{transform:perspective(1000px) rotateY(0deg) scale(1);opacity:1}}
 .card,.qcard,.lcard{animation:cardIn .6s cubic-bezier(.2,.75,.3,1) backwards}
@@ -168,7 +168,14 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 .tsheet{max-width:1060px;width:100%;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--ink);overflow:hidden;position:relative;display:flex;flex-direction:column}
 .tsheet .th{padding:16px 22px;font-weight:900;font-size:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .thctl{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--sub)}
-.thctl select,#sortwrap select{accent-color:#001D55;height:36px;padding:0 34px 0 12px;border-radius:3px;border:1px solid var(--ink);font-family:inherit;font-weight:600;font-size:13px;outline:none;line-height:1;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4.5l4 4 4-4' fill='none' stroke='%23000000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;background-size:11px}
+.csel{position:relative;display:inline-block}
+.csel-btn{height:36px;padding:0 30px 0 12px;border-radius:3px;border:1px solid var(--ink);background:#fff;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;position:relative;transition:.15s;color:var(--ink)}
+.csel-btn::after{content:"";position:absolute;right:10px;top:50%;transform:translateY(-40%);border:5px solid transparent;border-top-color:var(--ink);transition:transform .15s}
+.csel.open .csel-btn::after{transform:translateY(-60%) rotate(180deg)}
+.csel-list{display:none;position:absolute;top:calc(100% + 3px);left:0;min-width:100%;background:#fff;border:1px solid var(--ink);border-radius:3px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.14);overflow:hidden}
+.csel.open .csel-list{display:block}
+.csel-opt{padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;color:var(--ink);transition:background .1s,color .1s}
+.csel-opt:hover,.csel-opt.sel{background:#001D55;color:#fff}
 .tdir{cursor:pointer;border:1px solid var(--ink);background:#fff;border-radius:3px;height:36px;padding:0 14px;display:inline-flex;align-items:center;font-weight:700;font-size:13px;line-height:1}
 .tdir:hover{background:var(--fill);color:#fff}
 .tscroll{overflow-y:auto;overflow-x:hidden}
@@ -199,7 +206,7 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
 a.srow{cursor:pointer;transition:background .12s,border-color .12s}
 a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
 .srow .sarr{margin-left:auto;font-weight:800;font-size:15px;color:var(--fill)}
-.srow .srole{font-size:11px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--fill);padding:4px 10px;border-radius:3px;min-width:92px;text-align:center}
+.srow .srole{font-size:11px;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--fill);padding:4px 10px;border-radius:3px;width:130px;flex-shrink:0;white-space:nowrap;text-align:center}
 .srow .snm{font-size:17px;font-weight:800;color:var(--ink)}
 .srow .sen{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--sub)}
 .info-body{padding:24px 28px 30px;font-size:14px;line-height:1.9;color:#2a2d36}
@@ -251,7 +258,19 @@ a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
     </div>
   </div>
   <div id="sortwrap" style="display:flex;align-items:center;gap:6px;padding:10px 22px;border-bottom:1px solid var(--line);font-size:11px;font-weight:700;color:var(--sub)">並び替え
-    <select id="tsort"><option value="no">背番号</option><option value="pos">ポジション</option><option value="age">年齢</option><option value="h">身長</option><option value="w">体重</option><option value="caps">出場</option><option value="goals">得点</option><option value="jp">名前</option></select>
+    <div class="csel" id="tsort-wrap">
+      <button class="csel-btn" id="tsort-btn"><span id="tsort-label">背番号</span></button>
+      <div class="csel-list" id="tsort-list">
+        <div class="csel-opt sel" data-val="no">背番号</div>
+        <div class="csel-opt" data-val="pos">ポジション</div>
+        <div class="csel-opt" data-val="age">年齢</div>
+        <div class="csel-opt" data-val="h">身長</div>
+        <div class="csel-opt" data-val="w">体重</div>
+        <div class="csel-opt" data-val="caps">出場</div>
+        <div class="csel-opt" data-val="goals">得点</div>
+        <div class="csel-opt" data-val="jp">名前</div>
+      </div>
+    </div>
     <button class="tdir" id="tdir">昇順</button>
   </div>
   <div class="tscroll">
@@ -362,7 +381,7 @@ let targetZoom=zoom,zAnchor={x:0,y:0},velX=0,velY=0,panning=false,raf=0,running=
 function clampZ(z){return Math.min(MAXZ,Math.max(MINZ,z));}
 function zoomAround(sx,sy,nz){nz=clampZ(nz);const wx=(sx-panX)/zoom,wy=(sy-panY)/zoom;zoom=nz;panX=sx-wx*zoom;panY=sy-wy*zoom;}
 function zoomAt(sx,sy,nz){tween=null;zAnchor={x:sx,y:sy};targetZoom=clampZ(nz);kick();}
-function kick(){if(!running){running=true;lastT=performance.now();raf=requestAnimationFrame(loop);}}
+function kick(){world.style.willChange='transform';if(!running){running=true;lastT=performance.now();raf=requestAnimationFrame(loop);}}
 function loop(now){const dt=Math.min(44,(now-lastT)||16);lastT=now;let active=false;
   if(tween){let k=Math.min(1,(now-tween.t0)/tween.dur);const e=1-Math.pow(1-k,3);
     panX=tween.sx+(tween.tx-tween.sx)*e;panY=tween.sy+(tween.ty-tween.sy)*e;zoom=tween.sz+(tween.tz-tween.sz)*e;
@@ -373,7 +392,7 @@ function loop(now){const dt=Math.min(44,(now-lastT)||16);lastT=now;let active=fa
     if(!panning&&(Math.abs(velX)>0.015||Math.abs(velY)>0.015)){panX+=velX*dt;panY+=velY*dt;const fr=Math.pow(0.93,dt/16);velX*=fr;velY*=fr;active=true;}
   }
   apply();
-  if(active)raf=requestAnimationFrame(loop);else running=false;
+  if(active)raf=requestAnimationFrame(loop);else{running=false;world.style.willChange='auto';}
 }
 function flyTo(tpx,tpy,tz,dur){velX=velY=0;tween={sx:panX,sy:panY,sz:zoom,tx:tpx,ty:tpy,tz:clampZ(tz),t0:performance.now(),dur:dur||650};kick();}
 function fitTo(x0,y0,x1,y1,pad){pad=pad||80;const VW=vp.clientWidth,VH=vp.clientHeight;const bw=x1-x0,bh=y1-y0;
@@ -385,14 +404,14 @@ function flyToEl(el){const L=parseFloat(el.style.left),T=parseFloat(el.style.top
 function fitPositions(list){if(!list.length){fitAll();return;}let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
   list.forEach(p=>{const c=slots[p.no].parentElement;const L=parseFloat(c.style.left),T=parseFloat(c.style.top);x0=Math.min(x0,L);y0=Math.min(y0,T);x1=Math.max(x1,L+CW);y1=Math.max(y1,T+CH);});fitTo(x0,y0,x1,y1,90);}
 let pts=new Map(),dragged=false,startDist=0,downX=0,downY=0,lastMX=0,lastMY=0,lastMT=0;
-vp.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});dragged=false;panning=true;tween=null;velX=velY=0;downX=e.clientX;downY=e.clientY;lastMX=e.clientX;lastMY=e.clientY;lastMT=performance.now();vp.classList.add('grabbing');
+vp.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});dragged=false;panning=true;tween=null;velX=velY=0;downX=e.clientX;downY=e.clientY;lastMX=e.clientX;lastMY=e.clientY;lastMT=performance.now();world.style.willChange='transform';vp.classList.add('grabbing');
   if(pts.size===2){const a=[...pts.values()];startDist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}});
 vp.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(pts.size===1){panX+=e.clientX-prev.x;panY+=e.clientY-prev.y;const nt=performance.now(),ddt=Math.max(1,nt-lastMT);velX=(e.clientX-lastMX)/ddt;velY=(e.clientY-lastMY)/ddt;lastMX=e.clientX;lastMY=e.clientY;lastMT=nt;
     if(Math.hypot(e.clientX-downX,e.clientY-downY)>6){if(!dragged){try{vp.setPointerCapture(e.pointerId);}catch(_){}}dragged=true;}apply();}
   else if(pts.size===2){const a=[...pts.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);const r=vp.getBoundingClientRect();const mid={x:(a[0].x+a[1].x)/2-r.left,y:(a[0].y+a[1].y)/2-r.top};
     if(startDist>0){zoomAround(mid.x,mid.y,zoom*(d/startDist));targetZoom=zoom;startDist=d;apply();}dragged=true;velX=velY=0;}});
-function up(e){if(pts.has(e.pointerId))pts.delete(e.pointerId);if(pts.size<2)startDist=0;if(pts.size===0){panning=false;vp.classList.remove('grabbing');if(Math.hypot(velX,velY)>0.02)kick();}}
+function up(e){if(pts.has(e.pointerId))pts.delete(e.pointerId);if(pts.size<2)startDist=0;if(pts.size===0){panning=false;vp.classList.remove('grabbing');if(Math.hypot(velX,velY)>0.02)kick();else world.style.willChange='auto';}}
 vp.addEventListener('pointerup',up);vp.addEventListener('pointercancel',up);
 vp.addEventListener('wheel',e=>{e.preventDefault();const r=vp.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,targetZoom*Math.exp(-e.deltaY*0.0016));},{passive:false});
 let hinted=false;function hideHint(){if(hinted)return;hinted=true;document.getElementById('hint').style.opacity=0;}
@@ -426,7 +445,12 @@ function tsortList(){let l=PLAYERS.slice();const po={GK:0,DF:1,"MF/FW":2};
     else{x=a[tsk]??0;y=b[tsk]??0;}
     return (x<y?-1:x>y?1:0)*(tsd==="asc"?1:-1)||((a.no||0)-(b.no||0));});
   return l;}
-function syncSortUI(){const sl=document.getElementById('tsort');if(sl)sl.value=(["no","pos","age","h","w","caps","goals","jp"].includes(tsk)?tsk:"no");const d=document.getElementById('tdir');if(d)d.textContent=tsd==="asc"?"昇順":"降順";}
+const TSORT_LABELS={"no":"背番号","pos":"ポジション","age":"年齢","h":"身長","w":"体重","caps":"出場","goals":"得点","jp":"名前"};
+function syncSortUI(){
+  const lbl=document.getElementById('tsort-label');if(lbl)lbl.textContent=TSORT_LABELS[tsk]||"背番号";
+  document.querySelectorAll('#tsort-list .csel-opt').forEach(o=>o.classList.toggle('sel',o.dataset.val===tsk));
+  const d=document.getElementById('tdir');if(d)d.textContent=tsd==="asc"?"昇順":"降順";
+}
 function renderTable(){const list=tsortList();
   document.getElementById('thead').innerHTML='<tr>'+TC.map(c=>`<th data-k="${c[0]}" style="width:${c[2]}">${c[1]}<span class="arr">${tsk===c[0]?(tsd==="asc"?"▲":"▼"):""}</span></th>`).join('')+'</tr>';
   document.getElementById('tbody').innerHTML=list.map(p=>`<tr data-no="${p.no}">
@@ -443,7 +467,9 @@ function renderTable(){const list=tsortList();
     </div></div>`).join('');
   document.querySelectorAll('#thead th').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(tsk===k)tsd=tsd==="asc"?"desc":"asc";else{tsk=k;tsd="asc";}syncSortUI();renderTable();}));
   document.querySelectorAll('#tbody tr,#plist .pitem').forEach(r=>r.addEventListener('click',()=>{closeT();openModal(r.dataset.no);}));}
-document.getElementById('tsort').addEventListener('change',e=>{tsk=e.target.value;tsd="asc";syncSortUI();renderTable();});
+document.getElementById('tsort-btn').addEventListener('click',e=>{e.stopPropagation();document.getElementById('tsort-wrap').classList.toggle('open');});
+document.getElementById('tsort-list').addEventListener('click',e=>{const o=e.target.closest('.csel-opt');if(!o)return;tsk=o.dataset.val;tsd="asc";document.getElementById('tsort-wrap').classList.remove('open');syncSortUI();renderTable();});
+document.addEventListener('click',e=>{const w=document.getElementById('tsort-wrap');if(w&&!w.contains(e.target))w.classList.remove('open');});
 document.getElementById('tdir').addEventListener('click',()=>{tsd=tsd==="asc"?"desc":"asc";syncSortUI();renderTable();});
 function staffRows(list){return '<div class="slist">'+list.map(x=>{const inner=`<span class="srole">${x.role}</span><span class="snm">${x.jp}</span><span class="sen">${x.en}</span>${x.url?'<span class="sarr">↗</span>':''}`;return x.url?`<a class="srow" href="${x.url}" target="_blank" rel="noopener">${inner}</a>`:`<div class="srow">${inner}</div>`;}).join('')+'</div>';}
 function setList(which){document.querySelectorAll('#ltabs .ltab').forEach(t=>t.classList.toggle('active',t.dataset.list===which));
