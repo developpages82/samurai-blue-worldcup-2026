@@ -56,6 +56,8 @@ body{font-family:"adineue","Inter","Helvetica Neue",Arial,"Hiragino Kaku Gothic 
   .navgroup #modes{flex-direction:column;gap:6px}
   .navgroup .tab,.navgroup .ib{width:100%;text-align:center}
 }
+.nav-sep{color:var(--ink);opacity:.35;font-weight:400;font-size:14px;user-select:none}
+@media(max-width:760px){.nav-sep{display:block;height:0;border:none;border-top:1px solid var(--ink);opacity:.2;font-size:0;padding:0;margin:2px 0;width:100%}}
 .tab{cursor:pointer;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:8px 14px;border-radius:3px;border:1px solid var(--ink);color:var(--ink);background:transparent;transition:.15s}
 .tab:hover{background:rgba(21,23,29,.06)}.tab.active{background:var(--fill);color:#fff}
 .spacer{flex:1 1 auto;min-width:4px}
@@ -230,7 +232,7 @@ a.srow:hover{background:#f3f1ea;border-color:var(--ink)}
         <button class="tab" data-mode="WORDS">WORDS</button>
         <button class="tab" data-mode="LINKS">LINKS</button>
       </div>
-      <span style="color:var(--ink);opacity:.35;font-weight:400;font-size:14px;user-select:none">｜</span>
+      <span class="nav-sep">｜</span>
       <button class="ib" id="openTable">LIST</button>
       <button class="ib" id="openInfo">INFO</button>
     </nav>
